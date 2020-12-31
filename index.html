@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id ="app">
+        asdf
+    </div>
+    <!-- <script>
+        console.log('enter index')
+    </script> -->
+    <script async type="module">
+        import FCV from './src/instance/index.js'
+        let root = new FCV({
+            data: function() {
+                return {
+                    name: 'tom',
+                    age: 12,
+                    obj: {
+                        a: 'q',
+                        b: 'w',
+                        c: [1,2,3],
+
+                    }
+                }
+            },
+            methods: {
+                output() {
+                    console.log('output 1---', this.age);
+                    console.log('output 1---', this.fullName);
+                    console.log('output 1---', this.obj.c);
+                },
+                print() {
+                    this.output();
+                },
+                change() {
+                    this.age++;
+                }
+            },
+            computed: {
+                'fullName': function() {
+                    return this.obj.c + '|' + this.age;
+                }
+            },
+            watch: {
+                age: function(newVal, oldVal) {
+                    console.log('监听到age的改变', newVal, oldVal);
+                }
+            }
+        })
+        window.root = root;
+    </script>
+    <!-- <script type="module" src="./src/instance/index.js"></script>
+    <script>
+        let app = new FCV({
+            data: function() {
+                return {
+                    name: 'tom',
+                    age: 12,
+                    obj: {
+                        a: 'q',
+                        b: 'w',
+                        c: [1,2,3],
+                    }
+                }
+            }
+        })
+        console.log(app);
+    </script> -->
+</body>
+
+</html>
