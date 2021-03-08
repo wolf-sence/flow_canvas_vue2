@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id ="app">
+        <canvas id="canvas" width="500" height="500">
+            do not support canvas
+        </canvas>
+        <button onclick="clearRect()">clearRect</button>
+    </div>
+
+    <script async type="module">
+        import BaseV from './BaseV/instance/index.js'
+
+        let comp1 = {
+            data: function() {
+                return {
+                    name: 'tom',
+                    age: 12,
+                    obj: {
+                        a: 'q',
+                        b: 'w',
+                        c: [1,2,3],
+
+                    },
+                    isHover: false,
+                }
+            },
+            draw() {
+                console.log('enter draw', this.name);
+            },
+            methods: {
+                output() {
+                    console.log('output 1---', this.age);
+                    console.log('output 1---', this.fullName);
+                    console.log('output 1---', this.obj.c);
+                },
+                print() {
+                    this.output();
+                },
+                change() {
+                    this.age++;
+                }
+            },
+            computed: {
+                'fullName': function() {
+                    console.log('开始重新计算fullname')
+                    return this.obj.c + '|' + this.age;
+                }
+            },
+            watch: {
+                age: function(newVal, oldVal) {
+                    console.log('监听到age的改变', newVal, oldVal);
+                }
+            }
+        }
+        let root = new BaseV({
+            options: comp1,
+            ctx: {},
+        });
+        window.root = root;
+        root.render();
+    </script>
+</body>
+
+</html>

@@ -23,7 +23,7 @@ export function defineReactive (obj, key, val) {
         configurable: true,
         get: function reactiveGetter() {
             const value = getter ? getter.call(obj) : val;
-            Dep.target && dep.depend();
+            Dep.Target && dep.depend();
             if(childOb) {
                 childOb.dep.depend();
                 if(Array.isArray(value)) {

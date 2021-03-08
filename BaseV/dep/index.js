@@ -6,8 +6,8 @@ export class Dep {
         this.watchs = [];
     }
     depend() {
-        if(Dep.target) {
-            Dep.target.addDep(this);
+        if(Dep.Target) {
+            Dep.Target.addDep(this);
         }
     }
     addWatch(watch) {
@@ -20,12 +20,12 @@ export class Dep {
     }
 }
 
-Dep.target = null;
+Dep.Target = null;
 
 export function pushTarget(target) {
-    Dep.target = target;
+    Dep.Target = target;
 }
 
 export function popTarget() {
-    Dep.target = null;
+    Dep.Target = null;
 }

@@ -1,6 +1,6 @@
-import FCV from './src/instance/index';
+import BaseV from './BaseV/instance/index';
 
-let app = new FCV({
+let app = new BaseV({
     data: function() {
         return {
             name: 'tom',
@@ -15,7 +15,7 @@ let app = new FCV({
 })
 let keys = Object.keys(app)
 
-// console.log('FCV', FCV);
+// console.log('BaseV', BaseV);
 
 console.log('app', app);
 

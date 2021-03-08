@@ -1,9 +1,10 @@
 import { observe } from '../observe/index.js';
 import Watcher from '../watcher/index.js';
-import { warnTip } from '../debugger/index.js';
+import { warnTip, errorTip } from '../debugger/index.js';
 import { 
     hasOwn,
     isObject,
+    _parseHTML,
 } from '../share/utils.js';
 import {
     noop,
@@ -19,18 +20,40 @@ const sharedPropertyDefinition = {
 }
 
 export function initMixin(FCV) {
-    FCV.prototype._init = function (options) {
+    FCV.prototype._init_ = function (attr) {
         const vm = this;
-        vm._uid = uid++;
-        vm.$options = options;
+        vm.$uid = vm.id = uid++;
+        vm.$options = attr.options;
+        vm.$type = attr.type;
+        vm.$parent = attr.parent;
+        vm.$children = this.children = [];
+
+        vm.$props = vm._props = {};
+        // 解析props
+        mountProps(vm, attr);
 
         initState(vm);
     }
+    
 }
 
+function mountProps(vm, attr) { // 将外部传入的props挂载至实例;
+    let propsData = attr.propsData || {};
+    let propsKey = attr.options.props || [];
+    for(let i=0; i<propsKey.length; i++) {
+        let key = propsKey[i]
+        vm.$props[key] = propsData[key];
+    }
+}
 function initState(vm) {
     let opts = vm.$options;
+    if(opts.template) initTemplate(vm, opts.template);
+
     if(opts.props) initProps(vm, opts.props);
+
+    initLifecycle(vm, opts);
+    
+    vm.$beforeCreate && vm.$beforeCreate();
 
     if(opts.methods) initMethods(vm, opts.methods);
 
@@ -39,10 +62,67 @@ function initState(vm) {
     if(opts.computed) initComputed(vm, opts.computed);
 
     if(opts.watch) initWatch(vm, opts.watch);
+
+    vm.$create && vm.$create();
 }
 
-function initProps(vm, props) {
+function initTemplate(vm, template) {
+    let attrs = _parseHTML(template);
+    vm.$template = vm._template =attrs;
+}
 
+function initLifecycle(vm, opts) {
+    if (typeof opts.beforeCreate === 'function') {
+        vm.$beforeCreate = opts.beforeCreate;
+    }
+    if (typeof opts.create === 'function') {
+        vm.$create = opts.create;
+    }
+    if (typeof opts.mounted === 'function') {
+        vm.$mounted = opts.mounted;
+    }
+    if (typeof opts.beforeDestroy === 'function') {
+        vm.$beforeDestroy = opts.beforeDestroy;
+    }
+    if (typeof opts.isHere === 'function') {
+        vm.$isHere = opts.isHere;
+    }
+
+    if(typeof opts.draw === 'function') {
+        vm.$draw = opts.draw;
+    }
+    if(typeof opts.hover === 'function') {
+        vm.$hover = vm.hover = opts.hover;
+    }
+    if(typeof opts.isClick === 'function') {
+        vm.$click = vm.click = opts.click;
+    }
+    if(typeof opts.dblclick === 'function') {
+        vm.$dblclick = vm.dblclick = opts.dblclick;
+    }
+    if(typeof opts.dragstart === 'function') {
+        vm.$dragstart = vm.dragstart = opts.dragstart;
+    }
+    if(typeof opts.drag === 'function') {
+        vm.$drag = vm.drag = opts.drag;
+    }
+    if(typeof opts.dragend === 'function') {
+        vm.$dragend = vm.dragend = opts.dragend;
+    }
+    if(typeof opts.selected === 'function') {
+        vm.$selected = vm.selected = opts.selected;
+    }
+
+}
+
+
+function initProps(vm) {
+    let props = vm.$props;
+    let keys = Object.keys(props);
+    for(let i=0; i<keys.length; i++) {
+        proxy(vm, '_props', keys[i]);
+    }
+    observe(props);
 }
 
 function initMethods(vm, methods) {
@@ -63,7 +143,10 @@ function initMethods(vm, methods) {
 
 function initData(vm) {
     let data = vm.$options.data;
-    data = vm._data = data.call(vm, vm);
+    // data = vm._data = data.call(vm, vm);
+    data = vm._data = typeof data === 'function'
+        ? data.call(vm, vm)
+        : data || {}
 
     let keys = Object.keys(data);
 
@@ -80,7 +163,6 @@ function initData(vm) {
             proxy(vm, '_data', keys[i]);
         }
     }
-
     observe(data);
 }
 
