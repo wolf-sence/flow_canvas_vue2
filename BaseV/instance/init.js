@@ -75,8 +75,8 @@ function initLifecycle(vm, opts) {
     if (typeof opts.beforeCreate === 'function') {
         vm.$beforeCreate = opts.beforeCreate;
     }
-    if (typeof opts.create === 'function') {
-        vm.$create = opts.create;
+    if (typeof opts.created === 'function') {
+        vm.$created = opts.created;
     }
     if (typeof opts.mounted === 'function') {
         vm.$mounted = opts.mounted;
@@ -87,7 +87,6 @@ function initLifecycle(vm, opts) {
     if (typeof opts.isHere === 'function') {
         vm.$isHere = opts.isHere;
     }
-
     if(typeof opts.draw === 'function') {
         vm.$draw = opts.draw;
     }
@@ -100,19 +99,9 @@ function initLifecycle(vm, opts) {
     if(typeof opts.dblclick === 'function') {
         vm.$dblclick = vm.dblclick = opts.dblclick;
     }
-    if(typeof opts.dragstart === 'function') {
-        vm.$dragstart = vm.dragstart = opts.dragstart;
-    }
-    if(typeof opts.drag === 'function') {
-        vm.$drag = vm.drag = opts.drag;
-    }
-    if(typeof opts.dragend === 'function') {
-        vm.$dragend = vm.dragend = opts.dragend;
-    }
     if(typeof opts.selected === 'function') {
         vm.$selected = vm.selected = opts.selected;
     }
-
 }
 
 
@@ -152,7 +141,6 @@ function initData(vm) {
 
     const props = vm.$options.props;
     const methods = vm.$options.methods;
-
     for(let i=0;i<keys.length;i++) {
         if(methods && hasOwn(methods, keys[i])) {
             warnTip(`data [${key}] has already defined as a methods`);

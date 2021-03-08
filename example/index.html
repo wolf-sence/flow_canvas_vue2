@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id ="app">
+        <canvas width="1800" height="500" id="canvas" class="canvas_wrapper"></canvas>
+    </div>
+    <!-- <script>
+        console.log('enter index')
+    </script> -->
+    <script async type="module">
+        // import BaseV from './BaseV/instance/index.js'
+        import { Engine } from '../Engine/instance/engine.js';
+        import root from './root.js';
+        import anchor from './anchor.js';
+        import step from './step.js';
+        import edge from './edge.js';
+
+        let canvas = document.getElementById('canvas');
+        let uae = {
+            canvas: canvas,
+            data: () => {
+                return {
+                    name: '',
+                }
+            },
+            methods: {
+                say() {
+
+                }
+            }
+        }
+        let root1 = {
+            color: 'black',
+            id: '1',
+            bounds: {
+                width: 160,
+                height: 40,
+                x: 120,
+                y: 120,
+            },
+            output: [
+                {
+                    name: "失败",
+                    paramName: "failReturn",
+                    criteria: "==",
+                    value: "0",
+                    color: "#f12626",
+                    description: "失败锚点"
+                },
+                // {
+                //     name: "成功",
+                //     paramName: "sucessReturn",
+                //     criteria: "==",
+                //     value: "1",
+                //     color: "#21c562",
+                //     description: "成功出口锚点"
+                // },
+            ]
+        }
+
+        let root2 = {
+            color: 'blue',
+            id: '2',
+            bounds: {
+                width: 160,
+                height: 40,
+                x: 200,
+                y: 140,
+            },
+            output: [
+                {
+                    name: "失败",
+                    paramName: "failReturn",
+                    criteria: "==",
+                    value: "0",
+                    color: "#f12626",
+                    description: "失败锚点"
+                },
+                {
+                    name: "成功",
+                    paramName: "sucessReturn",
+                    criteria: "==",
+                    value: "1",
+                    color: "#21c562",
+                    description: "成功出口锚点"
+                },
+            ]
+        }
+
+        window.step = step;
+        
+        let flow = new Engine({
+            type: 'engine',
+            options: uae,
+        });
+        flow.registerComp(root);
+        flow.registerComp(edge);
+        flow.registerComp(anchor);
+        flow.registerComp(step);
+        console.log('register done')
+        flow.createNode({
+            type: 'step',
+            data: root1,
+        })
+        flow.createNode({
+            type: 'step',
+            data: root2,
+        })
+        window.flow = flow;
+        window.root1 = root1;
+        window.root2 = root2;
+        window.c = flow.$children[0];
+
+    </script>
+</body>
+<style>
+    .canvas_wrapper{
+        border: 1px solid black;
+    }
+</style>
+</html>

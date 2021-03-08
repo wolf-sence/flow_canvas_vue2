@@ -34,7 +34,9 @@ class Grid {
             }
             return;
         }
-        _delChildren([node]);
+        if(node.$block) {
+            _delChildren([node]);
+        }
     }
     // 处理增加节点事件
     handleUpdate(node) {
@@ -53,8 +55,9 @@ class Grid {
             }
             return;
         }
-        _updateChildren([node]);
-
+        if(node.$block) {
+            _updateChildren([node]);
+        }
     }
     // 一次性 循环所有节点的，生成障碍物地图
     loopAllNodes(nodeList) {

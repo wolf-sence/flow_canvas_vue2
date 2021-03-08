@@ -2,64 +2,10 @@ import BaseV from '../../BaseV/instance/index.js';
 import UnitF from './UnitF.js';
 import { errorTip, deepClone } from '../share/share.js';
 import GridWrap from '../grid/grid.js';
+import RenderSequence from '../render/sequence.js';
 import { Dep } from '../../BaseV/dep/index.js';
 
 let Grid = GridWrap.getInstance();
-
-// 引入渲染队列机制
-class RenderSequence { 
-    // 方案1：记录每次操作的节点，从而更新节点渲染队列
-    // 方案2：每次渲染前将 hover、selected的节点渲染延后(采用)
-    constructor(uae) {
-        this.uae = uae;
-        this.$children = uae.$children;
-        this._nodeMap = uae._nodeMap;
-
-        this.sequence = [];
-
-        this.initSeq();
-    }
-    initSeq() {
-        this.sequence = this.$children.map(item => item.id);
-    }
-    getSequence() { // 拿到渲染队列
-        // 渲染优先级: children >> parent;
-        //              hover > select > noStatus;
-        let noStatus = this.$children.filter(item => (!item.isHover) && (!item.isSelect))
-        let select = this.$children.filter(item => item.isSelect && (!item.isHover));
-        let hover = this.$children.filter(item => item.isHover);
-
-        return noStatus.concat(select, hover);
-
-    }
-    handleCreate(comp) {
-        this.sequence.push(comp.id);
-    }
-    handleDelete(comp) {
-        let index = this.sequence.indexOf(comp.id);
-        if(index !== -1) {
-            this.sequence.splice(index, 1);
-        }
-    }
-    handleUpdata(comp) {
-        comp = this._findParent(comp);
-        let index = this.sequence.index(comp.id);
-        if(index !== -1) {
-            let i = this.sequence.splice(index, 1);
-            this.sequence.push(i);
-        }
-    }
-    _findParent(comp) {
-        if(comp.$parent instanceof Engine) {
-            return comp;
-        }else if(!comp.$parent) {
-            return null;
-        }else {
-            return comp.$parent;
-        }
-    }
-
-}
 
 export class Engine extends BaseV{
     constructor(def) {
@@ -92,7 +38,11 @@ export class Engine extends BaseV{
         let mixinName = component.mixin;
         let compF = component;
         if(mixinName) {
-            compF = this.$templateClass[mixinName]&&this.mixinComp(component, this.$templateClass[mixinName])
+            if(this.$templateClass[mixinName]) {
+                compF = this.$templateClass[mixinName]&&this.mixinComp(component, this.$templateClass[mixinName])
+            }else {
+                errorTip(`we cann't find mixin-template: ${mixinName} when we're trying to register ${name}`);
+            }
         }
         this.$templateClass[name] = compF
     }
@@ -187,11 +137,8 @@ export class Engine extends BaseV{
                 cy = this._toCanvasY(e.offsetY);
             let comp = this.getCompByPoint(x, y, cx, cy);
             if (comp) {
-                if(comp.$cursor) {
-                    canvas.style.cursor = comp.$cursor
-                }else {
-                    canvas.style.cursor = 'pointer';
-                }
+                canvas.style.cursor = comp.$cursor;
+
                 comp.isHover = true;
                 comp.$hover && comp.$hover(cx, cy);
                 this.clearHover([comp.id]);
@@ -222,9 +169,8 @@ export class Engine extends BaseV{
                     }
                     if (!dragstart) {
                         dragstart = true;
-                        console.log('drag start');
                         if(comp) {
-                            this.recordDragStart(comp);
+                            // this.recordDragStart(comp);
                             // x1&x2几乎处于同一位置，可以忽视差别
                             comp.$dragstart && comp.$dragstart(x2, y2); // 鼠标的定位
                         }
@@ -255,10 +201,9 @@ export class Engine extends BaseV{
                         dy = y2 - y1;
                     if(dragstart) {
                         if(comp) {
-                            this.recordDragEnd(comp);
+                            // this.recordDragEnd(comp);
                             comp.$dragend && comp.$dragend(x2, y2);
                         }
-                        console.log('drag ending');
                         this.$emit('dragend', {
                             e,
                             x: x2,
@@ -325,11 +270,9 @@ export class Engine extends BaseV{
             }
         }
         let time = setTimeout(() => { // 10ms内 重新绘制整个画布中的内容
-            console.log('触发重绘');
             clearTimeout(time);
             this._drawing = false;
-            let children = this.RS.getSequence();
-            // console.log('children', children);
+            let children = this.RS.getSequence(); // 拿到渲染队列
             this.ctx.clearRect(0, 0, this.$canvas.width, this.$canvas.height);
             _draw(children);
         }, 10)
@@ -355,7 +298,6 @@ export class Engine extends BaseV{
         let nodeIds = Grid.checkPoint(cx, cy);
 
         if(nodeIds && Array.isArray(nodeIds)) {
-            // console.log('nodeids', nodeIds);
             return this._nodeMap[nodeIds.slice(-1)];
         }else if(nodeIds) {
             return this._nodeMap[nodeIds];
@@ -363,12 +305,7 @@ export class Engine extends BaseV{
         // if(nodeId) return this._nodeMap[nodeId];
         return;
     }
-    recordDragStart(comp) {
-        Grid.handleDelete(comp);
-    }
-    recordDragEnd(comp) {
-        Grid.handleUpdate(comp);
-    }
+    
     clearHover(ids = []) { // 除ids中以外的节点，清空hover状态
         this.$children.forEach(node => {
             if(ids.indexOf(node.id) === -1) {

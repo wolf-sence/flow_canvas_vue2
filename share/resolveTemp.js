@@ -57,9 +57,9 @@ export function _parseVIf(vm, attr) {
         console.log('from resolve propsData', propsData)
         root.createNode({
             type: attr.tag,
-            data: propsData,
             parent: vm,
             vIfItem: true,
+            ...propsData,
         })
     }
 }

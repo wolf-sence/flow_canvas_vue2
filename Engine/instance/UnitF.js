@@ -18,15 +18,24 @@ class UnitF extends BaseV {
         vm.$uae = vm._uae = attr.uae;
         vm.$vIfItem = attr.vIfItem;
         vm.$vForItem = attr.vForItem;
+        
+        vm.$dragable = vm.dragable = opts.dragable || true;
+        vm.$cursor = opts.cursor || 'pointer'; // hover时的鼠标指针
+        vm.$block = 'block' in opts ? opts.block : true; // 是否计入障碍物地图
+        vm.$link = 'link' in opts ? opts.link : true; // 是否可以被线条连接
 
-        vm.$cursor = opts.cursor;
+        vm._distance = {
+            dx: null,
+            dy: null,
+        }
 
         Grid.handleUpdate(vm);
-        // 此时 声明周期已经走完 mounted,但未渲染,
 
         this.initChildren(vm);
 
         this.initRender(vm);
+        
+        this.initDrag(vm);
 
         vm.$render();
 
@@ -64,6 +73,49 @@ class UnitF extends BaseV {
                 })
             }
         }   
+    }
+
+    initDrag(vm) {
+        let opts = vm.$options;
+        if(vm.dragable) {
+            if(typeof opts.dragstart === 'function') {
+                vm.$dragstart = vm.dragstart = opts.dragstart;
+            }else {
+                vm.$dragstart = vm.dragstart = this._dragStart;
+            }
+
+            if(typeof opts.drag === 'function') {
+                vm.$drag = vm.drag = opts.drag;
+            }else {
+                vm.$drag = vm.drag = this._drag;
+            }
+
+            if(typeof opts.dragend === 'function') {
+                vm.$dragend = vm.dragend = opts.dragend;
+            }else {
+                vm.$dragend = vm.dragend = this._dragend;
+            }
+        }
+    }
+    _dragStart(x, y) {
+        this._distance.dx = x - this.bounds.x;
+        this._distance.dy = y - this.bounds.y;
+        this.recordDragStart(this);
+    }
+    _drag(x, y) {
+        this.data.bounds.x = x - this._distance.dx;
+        this.data.bounds.y = y - this._distance.dy;
+    }
+    _dragend(x, y) {
+        this.data.bounds.x = x - this._distance.dx;
+        this.data.bounds.y = y - this._distance.dy;
+        this.recordDragEnd(this);
+    }
+    recordDragStart(comp) {
+        Grid.handleDelete(comp);
+    }
+    recordDragEnd(comp) {
+        Grid.handleUpdate(comp);
     }
     
 }
