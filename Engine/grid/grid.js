@@ -5,6 +5,8 @@ class Grid {
         this.grid = new Map();
         // 以10px为一个单位进行记录
         this.rate = 5;
+        
+        this.startBounds = null;
 
     }
     // 检查 (x, y)点是否存在节点障碍物
@@ -19,45 +21,40 @@ class Grid {
     }
     // 处理删除节点事件
     handleDelete(node) {
-        let bound = this.getRateBound(node.bounds);
-
-        this.delete(bound.xs, bound.ys, bound.xe, bound.ye, node.id);
-    }
-    // 处理增加节点事件
-    handleCreate(node) {
-        let bound = this.getRateBound(node.bounds);
-        if(bound.xs === bound.xe) bound.xe++;
-        if(bound.ys === bound.ye) bound.ye++;
-        this.create(bound.xs, bound.ys, bound.xe, bound.ye, node.id);
-    }
-    // 处理移动节点事件
-    handleMove(start, end, comp) {
-        let _findChildren = function(comps) {
+        let _delChildren = comps => {
             // 字节点坐标也需要更新
-            let ids = [];
             for(let i=0; i<comps.length; i++) {
-                ids.push(comps[i].id);
-                if(comps[i].$cildren && comp[i].$children.length>0) {
-                    ids = ids.concat(_findChildren(comps[i].$cildren));
+                let comp = comps[i];
+                let bound = this.getRateBound(comp.bounds);
+                this.delete(bound.xs, bound.ys, bound.xe, bound.ye, comp.id);
+
+                if(comp.$children && comp.$children.length>0) {
+                    _delChildren(comp.$children);
                 }
             }
-            return ids;
+            return;
         }
-        let ids = [comp.id];
-        if(comp.$children && comp.$children.length>0) ids = ids.concat(_findChildren(comp.$children));
-
-        this.move(start, end, ids);
-        
+        _delChildren([node]);
     }
-    move(start, end, ids) {
-        console.log('start, end, ids', start, end, ids);
-        let startBound = this.getRateBound(start);
+    // 处理增加节点事件
+    handleUpdate(node) {
+        let _updateChildren = comps => {
+            // 字节点坐标也需要更新
+            for(let i=0; i<comps.length; i++) {
+                let comp = comps[i];
+                let bound = this.getRateBound(comp.bounds);
+                if(bound.xs === bound.xe) bound.xe++;
+                if(bound.ys === bound.ye) bound.ye++;
+                this.create(bound.xs, bound.ys, bound.xe, bound.ye, comp.id);
 
-        this.delete(startBound.xs, startBound.ys, startBound.xe, startBound.ye, ids);
+                if(comp.$children && comp.$children.length>0) {
+                    _updateChildren(comp.$children);
+                }
+            }
+            return;
+        }
+        _updateChildren([node]);
 
-        let endBound = this.getRateBound(end);
-        
-        this.create(endBound.xs, endBound.ys, endBound.xe, endBound.ye, ids);
     }
     // 一次性 循环所有节点的，生成障碍物地图
     loopAllNodes(nodeList) {
@@ -70,10 +67,9 @@ class Grid {
         }
     }
     // 删除节点
-    delete(xs, ys, xe, ye, ids) {
-        if(!Array.isArray(ids)) ids = [ids];
-
+    delete(xs, ys, xe, ye, id) {
         let gridX = this.grid, gridY;
+
         for(let i=xs; i<=xe; i++) {
             // 拿到x对应的那个YMap
             gridY = gridX.get(i);
@@ -82,26 +78,25 @@ class Grid {
                 let valueY = gridY && gridY.get(j);
                 if(valueY) {
                     let arr = valueY.split(',');
-                    ids.forEach(id => {
-                        // console.log('---id', id, arr);
-                        let index = arr.indexOf(id)
-                        if(index!==-1) arr.splice(index, 1);
-                    })
+                    let index = arr.indexOf('' + id)
+                    if(index!==-1) {
+                        arr.splice(index, 1);
+                    }
+
                     if(arr.length === 0) gridY.delete(j);
                     else {
                         gridY.set(j, arr.join(','));
                     }
                 }
             }
-            if(gridY.size === 0) gridX.delete(i);
+            if(!gridY || gridY.size === 0) gridX.delete(i);
             gridY = null;
         }
     }
     // 增加节点
-    create(xs, ys, xe, ye, ids) {
-        if(!Array.isArray(ids)) ids = [ids];
-
+    create(xs, ys, xe, ye, id) {
         let gridX = this.grid, gridY;
+
         for(let i=xs; i<=xe; i++) {
             // 拿到x对应的那个YMap
             if(gridX.has(i)) {
@@ -111,18 +106,13 @@ class Grid {
                 gridX.set(i, gridY);
             }
             for(let j=ys; j<=ye; j++) {
-                if(!gridY.has(j)) gridY.set(j, `${ids.join(',')}`);
+                if(!gridY.has(j)) gridY.set(j, `${id}`);
                 else {
                     // 该点存在另一个已经被绘制的节点
                     let valueY = gridY.get(j);
                     let arr = valueY.split(',');
-                    // arr.unshift(id); // 绘制越靠后，排序越前
-                    // arr.push(id);
-                    arr.concat(ids);
+                    arr.push(id);
                     gridY.set(j, arr.join(','));
-                    // if(Array.isArray(valueY)) valueY.unshift(id); 
-                    // else valueY = [valueY, id];
-                    // gridY.set(j, valueY);
                 }
             }
         }

@@ -6,11 +6,59 @@ import { Dep } from '../../BaseV/dep/index.js';
 
 let Grid = GridWrap.getInstance();
 
-class Init {
-    constructor(def) {
-        
+// 引入渲染队列机制
+class RenderSequence { 
+    // 方案1：记录每次操作的节点，从而更新节点渲染队列
+    // 方案2：每次渲染前将 hover、selected的节点渲染延后(采用)
+    constructor(uae) {
+        this.uae = uae;
+        this.$children = uae.$children;
+        this._nodeMap = uae._nodeMap;
+
+        this.sequence = [];
+
+        this.initSeq();
     }
-    
+    initSeq() {
+        this.sequence = this.$children.map(item => item.id);
+    }
+    getSequence() { // 拿到渲染队列
+        // 渲染优先级: children >> parent;
+        //              hover > select > noStatus;
+        let noStatus = this.$children.filter(item => (!item.isHover) && (!item.isSelect))
+        let select = this.$children.filter(item => item.isSelect && (!item.isHover));
+        let hover = this.$children.filter(item => item.isHover);
+
+        return noStatus.concat(select, hover);
+
+    }
+    handleCreate(comp) {
+        this.sequence.push(comp.id);
+    }
+    handleDelete(comp) {
+        let index = this.sequence.indexOf(comp.id);
+        if(index !== -1) {
+            this.sequence.splice(index, 1);
+        }
+    }
+    handleUpdata(comp) {
+        comp = this._findParent(comp);
+        let index = this.sequence.index(comp.id);
+        if(index !== -1) {
+            let i = this.sequence.splice(index, 1);
+            this.sequence.push(i);
+        }
+    }
+    _findParent(comp) {
+        if(comp.$parent instanceof Engine) {
+            return comp;
+        }else if(!comp.$parent) {
+            return null;
+        }else {
+            return comp.$parent;
+        }
+    }
+
 }
 
 export class Engine extends BaseV{
@@ -29,6 +77,7 @@ export class Engine extends BaseV{
 
         this.$canvas = this.canvas = def.options.canvas;
         this.$ctx = this.ctx = this.$canvas.getContext('2d');
+        this.RS = new RenderSequence(this);
 
         this._init(def);
 
@@ -276,10 +325,13 @@ export class Engine extends BaseV{
             }
         }
         let time = setTimeout(() => { // 10ms内 重新绘制整个画布中的内容
+            console.log('触发重绘');
             clearTimeout(time);
             this._drawing = false;
+            let children = this.RS.getSequence();
+            // console.log('children', children);
             this.ctx.clearRect(0, 0, this.$canvas.width, this.$canvas.height);
-            _draw(this.$children);
+            _draw(children);
         }, 10)
     }
     // isRoot: 是否只返回单个根节点
@@ -311,14 +363,11 @@ export class Engine extends BaseV{
         // if(nodeId) return this._nodeMap[nodeId];
         return;
     }
-    recordDragStart(comp) { // 记录拖拽开始时的Grid坐标
-        let bounds = comp.bounds;
-        this.dragStart = deepClone(bounds);
+    recordDragStart(comp) {
+        Grid.handleDelete(comp);
     }
     recordDragEnd(comp) {
-        let bounds = comp.bounds;
-        Grid.handleMove(this.dragStart, bounds, comp);
-        this.dragStart = null;
+        Grid.handleUpdate(comp);
     }
     clearHover(ids = []) { // 除ids中以外的节点，清空hover状态
         this.$children.forEach(node => {

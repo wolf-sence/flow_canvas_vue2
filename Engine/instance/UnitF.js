@@ -21,7 +21,7 @@ class UnitF extends BaseV {
 
         vm.$cursor = opts.cursor;
 
-        Grid.handleCreate(vm);
+        Grid.handleUpdate(vm);
         // 此时 声明周期已经走完 mounted,但未渲染,
 
         this.initChildren(vm);
