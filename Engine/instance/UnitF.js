@@ -23,7 +23,7 @@ class UnitF extends BaseV {
         vm.$cursor = opts.cursor || 'pointer'; // hover时的鼠标指针
         vm.$block = 'block' in opts ? opts.block : true; // 是否计入障碍物地图
         vm.$link = 'link' in opts ? opts.link : true; // 是否可以被线条连接
-
+        // vm.$sync = 'sync' in opts ? opts.sync : false; // 初始化时是否异步渲染
         vm._distance = {
             dx: null,
             dy: null,
@@ -38,8 +38,8 @@ class UnitF extends BaseV {
         this.initDrag(vm);
 
         vm.$render();
-
         vm.$mounted && vm.$mounted();
+        
     }
     initRender(vm) {
         vm.render = vm.$render = () => {
@@ -56,6 +56,7 @@ class UnitF extends BaseV {
     }
 
     initChildren(vm) {
+        console.log('-----enter init initChildren')
         if(!vm.$template) return;
         for(let i=0; i<vm.$template.length; i++) {
             let attr = vm.$template[i];
@@ -64,12 +65,14 @@ class UnitF extends BaseV {
             }else if(attr.attrMap['v-if']) {
                 new Watcher(vm, () => {
                     _parseVIf(vm, attr);
-                    vm.$uae.draw();
+                    console.log('-------触发 v-if  watcher ')
+                    // vm.$uae.draw();
                 })
             }else if(attr.attrMap['v-for']) {
                 new Watcher(vm, () => {
+                    console.log('--------触发 v-for wathcer')
                     _parseVFor(vm, attr);
-                    vm.$uae.draw();
+                    // vm.$uae.draw();
                 })
             }
         }   

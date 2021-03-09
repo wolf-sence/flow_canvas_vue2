@@ -1,7 +1,7 @@
 export default {
-    template: '<edge v-if="hasEdge" :start="bounds" :end="endPoints"></edge>',
+    template: '<edge v-if="hasEdge" :start="startPoints" :end="endPoints"></edge>',
     name: 'anchor',
-    props: ['output', 'index'],
+    props: ['output', 'index', 'boundss'],
     cursor: 'crosshair',
     link: false,
     data: {
@@ -11,6 +11,8 @@ export default {
         endPoints: {
             x: null,
             y: null,
+            width: null,
+            height: null,
         }
     },
     draw() {
@@ -36,18 +38,25 @@ export default {
     drag(x, y) {
         let comp = this.$uae.getCompByPoint(x, y, x, y);
         if(comp && comp.$link) {
-            this.endPoints = this.calcLocation(comp);
+            this.endPoints = comp.bounds;
         } else {
             this.endPoints.x = x;
             this.endPoints.y = y;
+            this.endPoints.width = null;
+            this.endPoints.height = null;
         }
     },
     dragend(x, y) {
         let comp = this.$uae.getCompByPoint(x, y, x, y);
         if(!comp || !comp.$link) {
-            // 没有附着至节点时，取消线条连接
+            // 没有/不允许 附着至节点时，取消线条连接
             this.hasEdge = false;
+            this.endPoints.width = null;
+            this.endPoints.height = null;
         }
+    },
+    mounted() {
+        console.log('重新渲染 anchor')
     },
     methods: {
         calcLocation(node) { // 计算该节点 被线条附着时的 坐标
@@ -75,4 +84,9 @@ export default {
             }
         },
     },
+    watch: {
+        hasEdge(newVal, oldVal) {
+            console.log('enter watch hasEdge', newVal);
+        }
+    }
 }

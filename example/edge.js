@@ -1,8 +1,16 @@
 export default {
     name: 'edge',
-    props: ['start', 'end'], // start: 锚点anchor
+    props: ['end'], // start: 锚点anchor
     block: false,
     link: false,
+    data: {
+        start: {
+            x: 120,
+            y: 120,
+            width: 160,
+            height: 40,
+        }
+    },
     draw() {
         this.drawShape();
         if (this.isSelected) {
@@ -32,20 +40,16 @@ export default {
     },
     computed: {
         path() {
-            // start: startNode, data: edge
-            // let anchorIndex = this.start.output.map(o => o.id).indexOf(this.data.output.id);
-            // let sBounds = this.start.bounds;
-            // let sOutput = this.start.output;
+            this.start = this.$parent.bounds;
             let x = this.start.x+this.start.width/2,
                 y = this.start.y+this.start.height;
-            // if (this.end) {
-                // let path = this.getToNodePath(x + size * (anchorIndex + 1), y, sBounds, this.end.bounds);
-            //     return path;
-            // } else {
-                // console.log('end none',this.start.desp,this.start.desp);
+            if (this.end.width) {
+                let path = this.getToNodePath(x, y, this.start, this.end);
+                return path;
+            } else {
                 let path = this.getToPointPath(x, y, this.end.x, this.end.y, this.start);
                 return path;
-            // }
+            }
         }
     },
     methods: { 

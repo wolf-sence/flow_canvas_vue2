@@ -53,7 +53,7 @@ function initState(vm) {
 
     initLifecycle(vm, opts);
     
-    vm.$beforeCreate && vm.$beforeCreate();
+    vm.$beforeCreated && vm.$beforeCreated();
 
     if(opts.methods) initMethods(vm, opts.methods);
 
@@ -63,7 +63,7 @@ function initState(vm) {
 
     if(opts.watch) initWatch(vm, opts.watch);
 
-    vm.$create && vm.$create();
+    vm.$created && vm.$created();
 }
 
 function initTemplate(vm, template) {
@@ -72,8 +72,8 @@ function initTemplate(vm, template) {
 }
 
 function initLifecycle(vm, opts) {
-    if (typeof opts.beforeCreate === 'function') {
-        vm.$beforeCreate = opts.beforeCreate;
+    if (typeof opts.beforeCreated === 'function') {
+        vm.$beforeCreated = opts.beforeCreated;
     }
     if (typeof opts.created === 'function') {
         vm.$created = opts.created;

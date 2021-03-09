@@ -25,10 +25,11 @@ class Grid {
             // 字节点坐标也需要更新
             for(let i=0; i<comps.length; i++) {
                 let comp = comps[i];
+                if (!comp.$block) return;
                 let bound = this.getRateBound(comp.bounds);
                 this.delete(bound.xs, bound.ys, bound.xe, bound.ye, comp.id);
 
-                if(comp.$children && comp.$children.length>0) {
+                if(comp.$children && comp.$children.length>0 ) {
                     _delChildren(comp.$children);
                 }
             }
@@ -44,6 +45,8 @@ class Grid {
             // 字节点坐标也需要更新
             for(let i=0; i<comps.length; i++) {
                 let comp = comps[i];
+                if (!comp.$block) return;
+                
                 let bound = this.getRateBound(comp.bounds);
                 if(bound.xs === bound.xe) bound.xe++;
                 if(bound.ys === bound.ye) bound.ye++;

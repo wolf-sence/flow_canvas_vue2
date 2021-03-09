@@ -1,5 +1,5 @@
 export default {
-    template: '<anchor v-for="(item, index) in data.output" :output="item" :index="index"></anchor>',
+    template: '<anchor v-for="(item, index) in data.output" :output="item" :index="index" :boundss="bounds"></anchor>',
     name: 'step',
     cursor: 'pointer',
     mixin: 'root',
