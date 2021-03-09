@@ -93,7 +93,7 @@ function initLifecycle(vm, opts) {
     if(typeof opts.hover === 'function') {
         vm.$hover = vm.hover = opts.hover;
     }
-    if(typeof opts.isClick === 'function') {
+    if(typeof opts.click === 'function') {
         vm.$click = vm.click = opts.click;
     }
     if(typeof opts.dblclick === 'function') {
