@@ -1,19 +1,29 @@
 export default {
+    // template: '<dragDot></dragDot>',
     name: 'edge',
-    props: ['end'], // start: 锚点anchor
+    // props: ['hasEdge'], // start: 锚点anchor
     block: false,
     link: false,
+    dragable: false,
     data: {
         start: {
             x: 120,
             y: 120,
             width: 160,
             height: 40,
-        }
+        },
+        endPoints: {
+            x: 0,
+            y: 0,
+            width: null,
+            height: null,
+        },
+        isHover: false,
+        isSelect: false,
     },
     draw() {
         this.drawShape();
-        if (this.isSelected) {
+        if (this.isSelect || this.isHover) {
             this.createPath();
             let ctx = this.ctx,
                 output = this.$parent.output;
@@ -38,21 +48,70 @@ export default {
         }
         return false;
     },
+    hover(val) {
+        this.isHover = val
+    },
+    selected(val) {
+        console.log('from selected edge', val)
+        this.isSelect = val;
+    },
+    drag(x, y) {
+        console('edge drag');
+    },
     computed: {
         path() {
             this.start = this.$parent.bounds;
-            let x = this.start.x+this.start.width/2,
+            let x = this.start.x+this.start.width/2+2,
                 y = this.start.y+this.start.height;
-            if (this.end.width) {
-                let path = this.getToNodePath(x, y, this.start, this.end);
+            if (this.endPoints.width) {
+                let path = this.getToNodePath(x, y, this.start, this.endPoints);
                 return path;
             } else {
-                let path = this.getToPointPath(x, y, this.end.x, this.end.y, this.start);
+                let path = this.getToPointPath(x, y, this.endPoints.x, this.endPoints.y, this.start);
                 return path;
             }
         }
     },
+    beforeDestroy() {
+        this.$parent.hasEdge = false;
+    },
     methods: { 
+        handleDragStart(x, y) {
+            console.log('handleDragStart')
+            this.start = this.$parent.bounds;
+            this.endPoints.x = x;
+            this.endPoints.y = y;
+        },
+        handleDrag(x, y) {
+            let comp = this.$uae.getCompByPoint(x, y, x, y);
+
+            if(comp && comp.$link) {
+                this.endPoints = comp.bounds;
+            } else {
+                this.endPoints = {
+                    x,
+                    y,
+                    width: null,
+                    height: null,
+                }
+            }
+        },
+        handleDragEnd(x, y) {
+            let comp = this.$uae.getCompByPoint(x, y, x, y);
+            if(!comp || !comp.$link) {
+                // 没有/不允许 附着至节点时，取消线条连接
+                this.hasEdge = false;
+                this.endPoints = {
+                    x,
+                    y,
+                    width: null,
+                    height: null,
+                }
+                return false;
+            }else {
+                return true;
+            }
+        },
         drawShape() {
             this.createPath();
             let ctx = this.ctx,
@@ -202,7 +261,7 @@ export default {
                 path.push({ x: mx, y: y2 - 15 });
                 path.push({ x: x2, y: y2 - 15 });
             }
-            path.push({ x: x2, y: y2 });
+            path.push({ x: x2, y: y2-4 });
             return path;
         },
         getToPointPath(x1, y1, x2, y2, sBounds) {

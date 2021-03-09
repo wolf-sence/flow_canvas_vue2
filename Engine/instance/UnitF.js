@@ -2,7 +2,8 @@ import BaseV from '../../BaseV/instance/index.js';
 import Watcher from '../../BaseV/watcher/index.js';
 import { 
     _parseVFor, 
-    _parseVIf
+    _parseVIf,
+    _parse
 } from '../../share/resolveTemp.js';
 import GridWrap from '../grid/grid.js';
 
@@ -19,7 +20,7 @@ class UnitF extends BaseV {
         vm.$vIfItem = attr.vIfItem;
         vm.$vForItem = attr.vForItem;
         
-        vm.$dragable = vm.dragable = opts.dragable || true;
+        vm.$dragable = vm.dragable = 'dragable' in opts ? opts.dragable : true;
         vm.$cursor = opts.cursor || 'pointer'; // hover时的鼠标指针
         vm.$block = 'block' in opts ? opts.block : true; // 是否计入障碍物地图
         vm.$link = 'link' in opts ? opts.link : true; // 是否可以被线条连接
@@ -31,15 +32,20 @@ class UnitF extends BaseV {
 
         Grid.handleUpdate(vm);
 
+        this._init(vm);
+
+        vm.$render();
+        vm.$mounted && vm.$mounted();
+        
+    }
+    _init(vm) {
         this.initChildren(vm);
 
         this.initRender(vm);
         
         this.initDrag(vm);
 
-        vm.$render();
-        vm.$mounted && vm.$mounted();
-        
+        vm.$destroy = this.destroy;
     }
     initRender(vm) {
         vm.render = vm.$render = () => {
@@ -74,6 +80,10 @@ class UnitF extends BaseV {
                     _parseVFor(vm, attr);
                     // vm.$uae.draw();
                 })
+            }else {
+                new Watcher(vm, () => {
+                    _parse(vm, attr);
+                })
             }
         }   
     }
@@ -100,18 +110,63 @@ class UnitF extends BaseV {
             }
         }
     }
+    destroy() {
+        // 缺少清除响应式
+        let parent = this.$parent;
+        let uae = this.$uae;
+        if(this.$block) Grid.handleDelete(this); // 删除障碍物地图
+        if(this.$vIfItem) 
+        for(let i=0;i<this.$children.length;i++) {
+            console.log('---enter destroy',i,this.$children.length);
+            this.$children[i].$destroy();
+            i--;
+        }
+        for(let i=0;i<uae.$children.length;i++) {
+            let c = uae.$children[i];
+            if(this.id === c.id) {
+                uae.$children.splice(i, 1);
+                delete uae._nodeMap[this.id];
+                break;
+            }
+        }
+
+        for(let i=0;i<parent.$children.length;i++) {
+            let c = parent.$children[i];
+            if(this.id === c.id) {
+                parent.$children.splice(i, 1);
+                delete uae._nodeMap[this.id];
+                break;
+            }
+        }
+        
+        this.$parent = null;
+        this.$uae = null;
+    }
     _dragStart(x, y) {
         this._distance.dx = x - this.bounds.x;
         this._distance.dy = y - this.bounds.y;
         this.recordDragStart(this);
     }
     _drag(x, y) {
-        this.data.bounds.x = x - this._distance.dx;
-        this.data.bounds.y = y - this._distance.dy;
+        let fx = x - this._distance.dx;
+        let fy = y - this._distance.dy;
+        if(!this.isBorderX(fx)) {
+            this.data.bounds.x = fx
+        }
+        if(!this.isBorderY(fy)) {
+            this.data.bounds.y = fy
+        }
     }
     _dragend(x, y) {
-        this.data.bounds.x = x - this._distance.dx;
-        this.data.bounds.y = y - this._distance.dy;
+        let fx = x - this._distance.dx;
+        let fy = y - this._distance.dy;
+        if(!this.isBorderX(fx)) {
+            this.data.bounds.x = fx
+        }
+        if(!this.isBorderY(fy)) {
+            this.data.bounds.y = fy
+        }
+
         this.recordDragEnd(this);
     }
     recordDragStart(comp) {
@@ -120,7 +175,18 @@ class UnitF extends BaseV {
     recordDragEnd(comp) {
         Grid.handleUpdate(comp);
     }
-    
+    isBorderX(x) {
+        if(x<2 || x > (this.$uae.canvas.width-this.bounds.width)) {
+            return true;
+        }
+        return false;
+    }
+    isBorderY(y) {
+        if(y<2 || y > (this.$uae.canvas.height-this.bounds.height-2)) {
+            return true;
+        }
+        return false;
+    }
 }
 
 export default UnitF;

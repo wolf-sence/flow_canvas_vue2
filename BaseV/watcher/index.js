@@ -1,6 +1,7 @@
 import { warnTip, errorTip } from '../debugger/index.js';
 import { noop, parsePath } from '../share/lang.js';
 import { Dep, pushTarget, popTarget } from '../dep/index.js';
+import { remove } from '../share/utils.js';
 let uid = 0;
 
 export default class Watcher {
@@ -20,6 +21,7 @@ export default class Watcher {
         this.deps =  [];
         this.depIds = new Set();
         this.expOrFn = expOrFn;
+        this.active = true;
         if(typeof expOrFn === 'function') { // render
             this.getter = expOrFn;
         } else {
@@ -28,7 +30,7 @@ export default class Watcher {
                 this.getter = noop;
             }
         }
-
+        
         this.value = this.get();
     }
     get() { // 仅触发一次
@@ -83,20 +85,42 @@ export default class Watcher {
         this.run();
     }
     run() {
-        const value = this.get();
-        if(value !== this.value) {
-            const oldValue = this.value;
-            this.value = value;
-            if(this.user) {
-                try{
-                    this.callback.call(this.vm, value, oldValue);
-                } catch(e) {
-                    errorTip(`callback for watcher "${this.expOrFn}"`)
+        if(this.active) {
+            try {
+                const value = this.get();
+                if(value !== this.value) {
+                    const oldValue = this.value;
+                    this.value = value;
+                    if(this.user) {
+                        try{
+                            this.callback.call(this.vm, value, oldValue);
+                        } catch(e) {
+                            errorTip(`callback for watcher "${this.expOrFn}"`)
+                        }
+                    }else {
+                        this.callback.call(this.vm, value, oldValue);
+                    }
                 }
-            }else {
-                this.callback.call(this.vm, value, oldValue);
+            }catch (e) {
+                if(e instanceof TypeError) {
+                    // 此错误通常为实例被清除,所以此处清除所有被此watcher绑定的响应式系统
+                    // 当然也不排除未发现的错误,但是此处  为了！垃圾清理机制！ 暂时忽略；
+                    this.teardown();
+                }else {
+                    throw e;
+                }
             }
+            
         }
     }
+    teardown () {
+        if (this.active) {
+          let i = this.deps.length
+          while (i--) {
+            this.deps[i].removeSub(this)
+          }
+          this.active = false
+        }
+      }
 }
 

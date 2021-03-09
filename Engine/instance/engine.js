@@ -7,7 +7,7 @@ import { Dep } from '../../BaseV/dep/index.js';
 
 let Grid = GridWrap.getInstance();
 
-export class Engine extends BaseV{
+export default class Engine extends BaseV{
     constructor(def) {
         super(def);
 
@@ -24,7 +24,8 @@ export class Engine extends BaseV{
         this.$canvas = this.canvas = def.options.canvas;
         this.$ctx = this.ctx = this.$canvas.getContext('2d');
         this.RS = new RenderSequence(this);
-
+        this.selecteds = [];
+        this.dockeydown = null;
         this._init(def);
 
         this.$mounted && this.$mounted();
@@ -215,6 +216,7 @@ export class Engine extends BaseV{
                     
                 };
             if(comp) {
+                console.log('---pre select', comp.id);
                 comp.$selected && comp.$selected(true)
                 this.clearSelected([comp.id]);
             }else {
@@ -253,6 +255,13 @@ export class Engine extends BaseV{
                 comp,
             });
         })
+        document.addEventListener('keydown', this.dockeydown = e => {
+            this.$emit('keydown', e);
+
+            if(e.keyCode === 46) {
+                this.deleteSelected();
+            }
+        })
     }
     draw() {
         if(this._drawing) {
@@ -280,39 +289,78 @@ export class Engine extends BaseV{
     // isRoot: 是否只返回单个根节点
     // 返回该点最后被绘制的节点，即最顶层的节点
     getCompByPoint(x, y, cx, cy, isRoot = true) {
-        // let _comp = function (comps) {
-        //     for (let i = comps.length - 1, comp; i >= 0; i--) {
-        //         comp = comps[i];
-        //         if (comp.$children) {
-        //             let t = _comp(comp.$children);
-        //             if (t) {
-        //                 return t;
-        //             }
-        //         }
-        //         if (comp.$isHere && comp.$isHere(x, y, cx, cy)) {
-        //             return comp;
-        //         }
-        //     }
-        // }
-        // return _comp(this.$children);
         let nodeIds = Grid.checkPoint(cx, cy);
 
         if(nodeIds && Array.isArray(nodeIds)) {
             return this._nodeMap[nodeIds.slice(-1)];
         }else if(nodeIds) {
             return this._nodeMap[nodeIds];
+        } else { // 非block元素,不存在与障碍物地图,使用老方法判断
+            return this.getEdgeByPoint(cx, cy); // 暂时只对edge处理
         }
-        // if(nodeId) return this._nodeMap[nodeId];
-        return;
     }
-    
+    getEdgeByPoint(x, y) { // 特例：通过point获取edge或其子元素
+        let _findEdge = function (childrens) {
+            for(let i=0,item; i<childrens.length,item=childrens[i]; i++) {
+                if(item.$children) {
+                    let t = _findEdge(x, y);
+                    if(t) {
+                        console.log('---getEdgeByPoint',)
+                        return t;
+                    }
+                }
+                if(item.$isHere && item.$isHere(x, y)) {
+                    return item;
+                }
+            }
+        }
+
+        for(let key in this._nodeMap) {
+            let item = this._nodeMap[key];
+            if(item.$type === 'edge' && !item.$block) {
+                if(item.$children && item.$children.length>0) {
+                    let t = _findEdge(item.$children);
+                    if(t) {
+                        return t;
+                    }
+                }
+                if(item.$isHere && item.$isHere(x, y)) {
+                    return item;
+                }
+            }
+        }
+    }
+    deleteSelected() {
+        console.log('----this. delete', this.selecteds); 
+        this.selecteds.forEach(id => {
+            let node = this._nodeMap[id];
+            node.$destroy();
+            // for(let i=0; i< node.$parent.$children.length; i++) {
+            //     let n = node.$parent.$children[i];
+            //     if(n.id === id) {
+            //         n.$beforeDestroy && n.$beforeDestroy();
+            //         n.$destroy();
+            //         // node.$parent.$children.splice(i, 1);
+            //         // delete this._nodeMap[id];
+            //         break;
+            //     }
+            // }
+        })
+        this.repaint();
+    }
     clearHover(ids = []) { // 除ids中以外的节点，清空hover状态
         this.$children.forEach(node => {
             if(ids.indexOf(node.id) === -1) {
                 // node.isHover = false;
-                node.$hover(false);
+                node.$hover && node.$hover(false);
             }
         })
+        for(let key in this._nodeMap) {
+            let node = this._nodeMap[key];
+            if(node.$type === 'edge' && ids.indexOf(node.id) === -1) {
+                node.$hover && node.$hover(false);
+            }
+        }
     }
     clearSelected(ids = []) { // 除ids中以外的节点，清空selected状态
         this.$children.forEach(node => {
@@ -321,6 +369,14 @@ export class Engine extends BaseV{
                 node.$selected && node.$selected(false);
             }
         })
+        for(let key in this._nodeMap) {
+            let node = this._nodeMap[key];
+            // console.log('node.id', node.id);
+            if(node.$type === 'edge' && ids.indexOf(node.id) === -1) {
+                node.$selected && node.$selected(false);
+            }
+        }
+        this.selecteds = ids;
     }
     repaint() {
         this.draw();

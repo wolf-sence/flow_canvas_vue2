@@ -1,6 +1,7 @@
 // import UnitF from '../Engine/instance/UnitF.js';
 // 先删除children中原有的，由v-for/v-if动态生成的节点，再重新推入
 
+// 解析v-for 子节点
 export function _parseVFor(vm, attr) {
     let children = vm.$children;
     let root = vm.$uae;
@@ -38,7 +39,7 @@ export function _parseVFor(vm, attr) {
         })
     }
 }
-
+// 解析v-if 子节点
 export function _parseVIf(vm, attr) {
     let children = vm.$children;
     let root = vm.$uae;
@@ -63,8 +64,25 @@ export function _parseVIf(vm, attr) {
         })
     }
 }
-
-
+// 解析 普通子节点
+export function _parse(vm, attr) {
+    let children = vm.$children;
+    let root = vm.$uae;
+    console.log('vm, attr', vm, attr);
+    for(let i=children.length-1; i>=0; i--) {
+        if(!children[i].$vIfItem && !children[i].$vForItem) {
+            children.splice(i, 1);
+        }
+    }
+    
+    let propsData = mountProps(vm, attr);
+    console.log('from _parse normal propsData', propsData);
+    root.createNode({
+        type: attr.tag,
+        parent: vm,
+        ...propsData,
+    })
+}
 function mountProps(vm, attr) {
     let propsMap = attr.attrMap;
     let ret = {}

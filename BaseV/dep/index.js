@@ -1,3 +1,5 @@
+import { remove } from '../share/utils.js';
+
 let uid = 0;
 
 export class Dep {
@@ -9,6 +11,9 @@ export class Dep {
         if(Dep.Target) {
             Dep.Target.addDep(this);
         }
+    }
+    removeSub (sub) {
+        remove(this.watchs, sub)
     }
     addWatch(watch) {
         this.watchs.push(watch);

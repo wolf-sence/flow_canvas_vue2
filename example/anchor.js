@@ -1,23 +1,17 @@
 export default {
-    template: '<edge v-if="hasEdge" :start="startPoints" :end="endPoints"></edge>',
+    template: '<edge v-if="hasEdge"></edge>',
     name: 'anchor',
-    props: ['output', 'index', 'boundss'],
+    props: ['output', 'index'],
     cursor: 'crosshair',
     link: false,
     data: {
         isHover: false,
         color: '#F69E9E',
         hasEdge: false,
-        endPoints: {
-            x: null,
-            y: null,
-            width: null,
-            height: null,
-        }
+        edge: null,
     },
     draw() {
         let ctx = this.ctx;
-        let data = this.$parent.data;
         ctx.beginPath();
         
         ctx.arc(this.bounds.x+this.bounds.width, this.bounds.y, this.bounds.width, 0, 2 * Math.PI);
@@ -30,29 +24,19 @@ export default {
         ctx.closePath();
     },
     dragstart(x, y) {
-        this.endPoints.x = x;
-        this.endPoints.y = y;
+        this.hasEdge = false;
         this.hasEdge = true;
-        console.log('---dragStart--- ')
+        this.edge = this.$children[0];
+        this.edge && this.edge.handleDragStart(x, y);
+        
     },
     drag(x, y) {
-        let comp = this.$uae.getCompByPoint(x, y, x, y);
-        if(comp && comp.$link) {
-            this.endPoints = comp.bounds;
-        } else {
-            this.endPoints.x = x;
-            this.endPoints.y = y;
-            this.endPoints.width = null;
-            this.endPoints.height = null;
-        }
+        this.edge && this.edge.handleDrag(x, y);
     },
     dragend(x, y) {
-        let comp = this.$uae.getCompByPoint(x, y, x, y);
-        if(!comp || !comp.$link) {
-            // 没有/不允许 附着至节点时，取消线条连接
-            this.hasEdge = false;
-            this.endPoints.width = null;
-            this.endPoints.height = null;
+        if(this.edge) {
+            this.hasEdge = this.edge.handleDragEnd(x, y);
+            this.edge = null;
         }
     },
     mounted() {

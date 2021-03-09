@@ -1,5 +1,5 @@
 export default {
-    template: '<anchor v-for="(item, index) in data.output" :output="item" :index="index" :boundss="bounds"></anchor>',
+    template: '<anchor v-for="(item, index) in data.output" :output="item" :index="index"></anchor>',
     name: 'step',
     cursor: 'pointer',
     mixin: 'root',
@@ -27,7 +27,6 @@ export default {
         this.ctx.stroke();
         // this.ctx.fill();
         this.ctx.closePath();
-        let ctx = this.ctx;
 
         if(this.isHover) {
             this.drawShape();
@@ -77,7 +76,7 @@ export default {
         'fullName': function() {
             console.log('开始重新计算fullname')
             return this.obj.c + '|' + this.age;
-        }
+        },
     },
     watch: {
         age: function(newVal, oldVal) {
