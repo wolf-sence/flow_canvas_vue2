@@ -39,9 +39,6 @@ export default {
             this.edge = null;
         }
     },
-    mounted() {
-        console.log('重新渲染 anchor')
-    },
     methods: {
         calcLocation(node) { // 计算该节点 被线条附着时的 坐标
             let bounds = node.bounds;

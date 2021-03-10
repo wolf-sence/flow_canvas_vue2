@@ -102,13 +102,14 @@ export default class Watcher {
                     }
                 }
             }catch (e) {
-                if(e instanceof TypeError) {
+                // if(e instanceof TypeError) {
                     // 此错误通常为实例被清除,所以此处清除所有被此watcher绑定的响应式系统
-                    // 当然也不排除未发现的错误,但是此处  为了！垃圾清理机制！ 暂时忽略；
+                    // 当然也不排除未发现的错误,但是此处  为了垃圾清理机制 暂时忽略；
+                    // 暂时取消
                     this.teardown();
-                }else {
+                // }else {
                     throw e;
-                }
+                // }
             }
             
         }
@@ -117,10 +118,20 @@ export default class Watcher {
         if (this.active) {
           let i = this.deps.length
           while (i--) {
-            this.deps[i].removeSub(this)
+            this.deps[i].removeSub(this);
           }
-          this.active = false
+          this.active = false;
         }
-      }
+    }
+    destroy() {
+        // 绑定的属性被销毁时，需要手动触发此事件
+        // 目前在每个实例的节点 统一销毁
+        this.teardown();
+        let keys = Object.keys(this);
+        for(let i=0;i<keys.length;i++) {
+            this[keys[i]] = null;
+        }
+
+    }
 }
 

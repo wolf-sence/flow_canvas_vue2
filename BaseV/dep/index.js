@@ -23,6 +23,13 @@ export class Dep {
             this.watchs[i].update();
         }
     }
+    destroy() {
+        let length = this.watchs.length;
+        for(let i=length-1; i>=0; i--) {
+            let watch = this.watchs[i];
+            watch.removeDep(this);
+        }
+    }
 }
 
 Dep.Target = null;

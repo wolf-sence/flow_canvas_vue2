@@ -12,7 +12,8 @@ export function stateMixin(FCV) {
         }
         options = options || {};
         options.user = true;
-        new Watcher(vm, key, callback, options);
+        let watch = new Watcher(vm, key, callback, options);
+        vm._watchers.push(watch);
     }
     FCV.prototype.$on = function (name, fn) {
         if (typeof fn !== 'function') {

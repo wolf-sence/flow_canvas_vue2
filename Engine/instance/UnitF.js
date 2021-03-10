@@ -51,39 +51,39 @@ class UnitF extends BaseV {
         vm.render = vm.$render = () => {
             let option = {
                 after: () => {
-                    console.log('enter afater ', vm.$type);
                     vm.$draw&&vm.$draw();
                 }
             }
-            new Watcher(vm, () => {
+            let watch = new Watcher(vm, () => {
                 vm.$uae&&vm.$uae.draw(); // 通知父级渲染
             }, null, option);
+            vm._watchers.push(watch)
         }
     }
 
     initChildren(vm) {
-        console.log('-----enter init initChildren')
         if(!vm.$template) return;
         for(let i=0; i<vm.$template.length; i++) {
             let attr = vm.$template[i];
             if(attr.attrMap['v-if']&&attr.attrMap['v-for']) {
                 errorTip(`we're not support v-for and v-if been use in same component!`);
             }else if(attr.attrMap['v-if']) {
-                new Watcher(vm, () => {
+                let watch = new Watcher(vm, () => {
                     _parseVIf(vm, attr);
-                    console.log('-------触发 v-if  watcher ')
                     // vm.$uae.draw();
                 })
+                vm._watchers.push(watch);
             }else if(attr.attrMap['v-for']) {
-                new Watcher(vm, () => {
-                    console.log('--------触发 v-for wathcer')
+                let watch = new Watcher(vm, () => {
                     _parseVFor(vm, attr);
                     // vm.$uae.draw();
                 })
+                vm._watchers.push(watch);
             }else {
-                new Watcher(vm, () => {
+                let watch = new Watcher(vm, () => {
                     _parse(vm, attr);
                 })
+                vm._watchers.push(watch);
             }
         }   
     }
@@ -115,11 +115,16 @@ class UnitF extends BaseV {
         let parent = this.$parent;
         let uae = this.$uae;
         if(this.$block) Grid.handleDelete(this); // 删除障碍物地图
-        if(this.$vIfItem) 
+        
         for(let i=0;i<this.$children.length;i++) {
-            console.log('---enter destroy',i,this.$children.length);
             this.$children[i].$destroy();
             i--;
+        }
+        // 销毁过程不可能，如果需要可逆，可以在此处修改返回值，判断是否继续销毁
+        this.$beforeDestroy && this.$beforeDestroy();
+        // 清除所有 响应式
+        for(let i=0;i<this._watchers.length;i++) {
+            this._watchers[i].destroy();
         }
         for(let i=0;i<uae.$children.length;i++) {
             let c = uae.$children[i];
@@ -129,7 +134,6 @@ class UnitF extends BaseV {
                 break;
             }
         }
-
         for(let i=0;i<parent.$children.length;i++) {
             let c = parent.$children[i];
             if(this.id === c.id) {
@@ -138,9 +142,16 @@ class UnitF extends BaseV {
                 break;
             }
         }
-        
-        this.$parent = null;
-        this.$uae = null;
+        // let keys = Object.keys(this);
+        // for(let i=0;i<keys.length;i++) {
+        //     try{
+        //         if(keys[i] in this && this[keys[i]]) this[keys[i]] = null;
+        //     } catch(e) {
+        //         // 销毁过程，由于响应式的proxy，所以可能出现删除元数据，倒是proxy-key读不了，所以此处捕捉不做处理
+        //     }
+        // }
+        // this.$parent = null;
+        // this.$uae = null;
     }
     _dragStart(x, y) {
         this._distance.dx = x - this.bounds.x;

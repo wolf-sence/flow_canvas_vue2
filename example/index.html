@@ -147,6 +147,9 @@
             type: 'step',
             data: root3,
         })
+        flow.$on('contextmenu', e => {
+            console.log('-------右键菜单----');
+        })
         window.flow = flow;
         window.root1 = root1;
         window.root2 = root2;

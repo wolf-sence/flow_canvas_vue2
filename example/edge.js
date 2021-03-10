@@ -13,8 +13,8 @@ export default {
             height: 40,
         },
         endPoints: {
-            x: 0,
-            y: 0,
+            x: null,
+            y: null,
             width: null,
             height: null,
         },
@@ -52,28 +52,24 @@ export default {
         this.isHover = val
     },
     selected(val) {
-        console.log('from selected edge', val)
         this.isSelect = val;
-    },
-    drag(x, y) {
-        console('edge drag');
     },
     computed: {
         path() {
             this.start = this.$parent.bounds;
             let x = this.start.x+this.start.width/2+2,
                 y = this.start.y+this.start.height;
-            if (this.endPoints.width) {
+            if (this.endPoints.width) { // 已经附着到节点
                 let path = this.getToNodePath(x, y, this.start, this.endPoints);
                 return path;
-            } else {
+            } else if(this.endPoints.x){
                 let path = this.getToPointPath(x, y, this.endPoints.x, this.endPoints.y, this.start);
                 return path;
             }
         }
     },
     beforeDestroy() {
-        this.$parent.hasEdge = false;
+        // this.$parent.hasEdge = false;
     },
     methods: { 
         handleDragStart(x, y) {
@@ -107,6 +103,7 @@ export default {
                     width: null,
                     height: null,
                 }
+                this.$destroy();
                 return false;
             }else {
                 return true;

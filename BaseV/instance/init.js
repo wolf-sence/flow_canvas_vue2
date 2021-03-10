@@ -27,7 +27,7 @@ export function initMixin(FCV) {
         vm.$type = attr.type;
         vm.$parent = attr.parent;
         vm.$children = this.children = [];
-
+        vm._watchers = []; // 为垃圾回收机制服务
         vm.$props = vm._props = {};
         // 解析props
         mountProps(vm, attr);
@@ -181,6 +181,9 @@ function initComputed(vm, computed) {
         } else {
             warnTip(`the computed property "${key}" is already defined`);
         }
+    }
+    for(let key in watchers) {
+        vm._watchers.push(watchers[key]);
     }
 }
 

@@ -216,7 +216,6 @@ export default class Engine extends BaseV{
                     
                 };
             if(comp) {
-                console.log('---pre select', comp.id);
                 comp.$selected && comp.$selected(true)
                 this.clearSelected([comp.id]);
             }else {
