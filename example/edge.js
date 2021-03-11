@@ -15,13 +15,12 @@ export default {
         endPoints: {
             x: null,
             y: null,
-            width: null,
-            height: null,
         },
         isHover: false,
         isSelect: false,
     },
     draw() {
+        this.ctx.beginPath();
         this.drawShape();
         if (this.isSelect || this.isHover) {
             this.createPath();
@@ -34,6 +33,7 @@ export default {
             ctx.strokeStyle = output.color;
             ctx.stroke();
         }
+        this.ctx.closePath();
     },
     isHere(x, y) {
         let ctx = this.ctx;
@@ -73,7 +73,6 @@ export default {
     },
     methods: { 
         handleDragStart(x, y) {
-            console.log('handleDragStart')
             this.start = this.$parent.bounds;
             this.endPoints.x = x;
             this.endPoints.y = y;
@@ -96,7 +95,7 @@ export default {
             let comp = this.$uae.getCompByPoint(x, y, x, y);
             if(!comp || !comp.$link) {
                 // 没有/不允许 附着至节点时，取消线条连接
-                this.hasEdge = false;
+                // this.hasEdge = false;
                 this.endPoints = {
                     x,
                     y,
@@ -106,6 +105,7 @@ export default {
                 this.$destroy();
                 return false;
             }else {
+                comp.dependEdge(this.id); // 通知目标节点记录此线条接入
                 return true;
             }
         },

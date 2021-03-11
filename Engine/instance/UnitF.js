@@ -122,10 +122,7 @@ class UnitF extends BaseV {
         }
         // 销毁过程不可能，如果需要可逆，可以在此处修改返回值，判断是否继续销毁
         this.$beforeDestroy && this.$beforeDestroy();
-        // 清除所有 响应式
-        for(let i=0;i<this._watchers.length;i++) {
-            this._watchers[i].destroy();
-        }
+        
         for(let i=0;i<uae.$children.length;i++) {
             let c = uae.$children[i];
             if(this.id === c.id) {
@@ -142,16 +139,22 @@ class UnitF extends BaseV {
                 break;
             }
         }
-        // let keys = Object.keys(this);
-        // for(let i=0;i<keys.length;i++) {
-        //     try{
-        //         if(keys[i] in this && this[keys[i]]) this[keys[i]] = null;
-        //     } catch(e) {
-        //         // 销毁过程，由于响应式的proxy，所以可能出现删除元数据，倒是proxy-key读不了，所以此处捕捉不做处理
-        //     }
-        // }
-        // this.$parent = null;
-        // this.$uae = null;
+        let keys = Object.keys(this);
+        let _watchers = this._watchers;
+
+        for(let i=0;i<keys.length;i++) {
+            try{
+                if(keys[i] in this && this[keys[i]]) delete this[keys[i]];
+            } catch(e) {
+                // 销毁过程，由于响应式的proxy，所以可能出现删除元数据，倒是proxy-key读不了，所以此处捕捉不做处理
+            }
+        }
+
+        // 清除所有 响应式
+        for(let i=0;i<_watchers.length;i++) {
+            _watchers[i].destroy();
+        }
+        _watchers = null;
     }
     _dragStart(x, y) {
         this._distance.dx = x - this.bounds.x;
