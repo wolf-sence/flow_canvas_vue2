@@ -15,30 +15,15 @@
         console.log('enter index')
     </script> -->
     <script async type="module">
-        // import BaseV from './BaseV/instance/index.js'
-        import Engine from '../Engine/instance/Engine.js';
-        import root from './root.js';
-        import anchor from './anchor.js';
-        import step from './step.js';
-        import edge from './edge.js';
-        import dragDot from './dragDot.js';
+        import FlowUnion from '../Union/Union.js';
 
         let canvas = document.getElementById('canvas');
-        let uae = {
-            canvas: canvas,
-            data: () => {
-                return {
-                    name: '',
-                }
-            },
-            methods: {
-                say() {
 
-                }
-            }
-        }
+        let flow = new FlowUnion(canvas);
+
         let root1 = {
             color: 'black',
+            type: 'step',
             id: '1',
             bounds: {
                 width: 160,
@@ -68,6 +53,7 @@
 
         let root2 = {
             color: 'blue',
+            type: 'step',
             id: '2',
             bounds: {
                 width: 160,
@@ -96,6 +82,7 @@
         }
         let root3 = {
             color: 'gray',
+            type: 'step',
             id: '3',
             bounds: {
                 width: 160,
@@ -123,37 +110,13 @@
             ]
         }
 
-        window.step = step;
-        
-        let flow = new Engine({
-            type: 'engine',
-            options: uae,
-        });
-        flow.registerComp(root);
-        flow.registerComp(dragDot);
-        flow.registerComp(edge);
-        flow.registerComp(anchor);
-        flow.registerComp(step);
-        console.log('register done')
-        flow.createNode({
-            type: 'step',
-            data: root1,
-        })
-        flow.createNode({
-            type: 'step',
-            data: root2,
-        })
-        flow.createNode({
-            type: 'step',
-            data: root3,
-        })
-        flow.$on('contextmenu', e => {
+        let arr = [root1, root2, root3];
+        window.flow = flow.uae;
+        flow.loopNodeList(arr);
+
+        flow.uae.$on('contextmenu', e => {
             console.log('-------右键菜单----');
         })
-        window.flow = flow;
-        // window.root1 = root1;
-        // window.root2 = root2;
-        // window.c = flow.$children[0];
 
     </script>
 </body>

@@ -19,21 +19,20 @@ export default {
     },
     draw() {
         this.ctx.beginPath();
-        // this.ctx.fillStyle=this.data.color;
         let bounds = this.data.bounds;
         this.ctx.strokeStyle = this.data.color;
-        // this.ctx.fillStyle = this.data.color;
-        this.ctx.rect(bounds.x,bounds.y,bounds.width,bounds.height);
-        this.ctx.stroke();
-        // this.ctx.fill();
-        this.ctx.closePath();
 
+        this.ctx.rect(bounds.x,bounds.y,bounds.width,bounds.height);
+        
+        this.ctx.stroke();
+        this.ctx.closePath();
         if(this.isHover) {
             this.drawShape();
         }
         if(this.isSelect) {
             this.drawShape();
         }
+        
     },
     hover(isHover) {
         this.isHover = isHover;

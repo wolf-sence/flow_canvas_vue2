@@ -68,7 +68,7 @@ export function _parseVIf(vm, attr) {
 export function _parse(vm, attr) {
     let children = vm.$children;
     let root = vm.$uae;
-    console.log('vm, attr', vm, attr);
+    // console.log('vm, attr', vm, attr);
     for(let i=children.length-1; i>=0; i--) {
         if(!children[i].$vIfItem && !children[i].$vForItem) {
             children.splice(i, 1);
@@ -84,6 +84,7 @@ export function _parse(vm, attr) {
     })
 }
 function mountProps(vm, attr) {
+    console.log('-----重新生成子节点----');
     let propsMap = attr.attrMap;
     let ret = {}
     for(let key in propsMap) {

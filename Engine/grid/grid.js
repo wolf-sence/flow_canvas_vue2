@@ -19,6 +19,32 @@ class Grid {
         }
         return;
     }
+    // 根据 range范围检查 存在其内的节点
+    // (x1,y1)< (x2, y2)
+    checkRange(x1, y1, x2, y2) {
+        x1 = this.getRoundVal(x1);
+        x2 = this.getRoundVal(x2);
+        y1 = this.getRoundVal(y1);
+        y2 = this.getRoundVal(y2);
+
+        let idList = [];
+
+        for(let x=x1; x<=x2; x++) {
+            if(this.grid.has(x)) {
+                for(let y=y1; y<=y2; y++) {
+                    let ids = this.grid.get(x).get(y);
+                    if(!ids) continue;
+                    let arr= ids.split(',');
+                    arr.forEach(item => {
+                        if(idList.indexOf(item) === -1) {
+                            idList.push(item);
+                        }
+                    })
+                }
+            }
+        }
+        return idList;
+    }
     // 处理删除节点事件
     handleDelete(node) {
         let _delChildren = comps => {

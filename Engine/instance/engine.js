@@ -3,7 +3,6 @@ import UnitF from './UnitF.js';
 import { errorTip, deepClone } from '../share/share.js';
 import GridWrap from '../grid/grid.js';
 import RenderSequence from '../render/sequence.js';
-import { Dep } from '../../BaseV/dep/index.js';
 
 let Grid = GridWrap.getInstance();
 
@@ -30,7 +29,7 @@ export default class Engine extends BaseV{
 
         this.$mounted && this.$mounted();
         
-        window.grid = Grid;
+        this.Grid = Grid;
         
     }
     // 注册节点类型 (根据mixinName父类型创建子类型)
@@ -75,6 +74,7 @@ export default class Engine extends BaseV{
 
         this._nodeMap[node.id] = node;
 
+        return node;
         // Grid.handleCreate(node);
     }
     mixinComp(comp, mixin) {
@@ -170,10 +170,11 @@ export default class Engine extends BaseV{
                     }
                     if (!dragstart) {
                         dragstart = true;
-                        if(comp) {
-                            // this.recordDragStart(comp);
+                        if(this.selecteds.length>0) {
                             // x1&x2几乎处于同一位置，可以忽视差别
-                            comp.$dragstart && comp.$dragstart(x2, y2); // 鼠标的定位
+                            this.selecteds.forEach(item => {
+                                this._nodeMap[item].$dragstart && this._nodeMap[item].$dragstart(x2, y2); // 鼠标的定位
+                            })
                         }
                         this.$emit('dragstart', {
                             e,
@@ -182,8 +183,10 @@ export default class Engine extends BaseV{
                             comp: comp,
                         })
                     }
-                    if(comp) {
-                        comp.$drag && comp.$drag(x2, y2);
+                    if(this.selecteds.length>0) {
+                        this.selecteds.forEach(item => {
+                            this._nodeMap[item].$drag && this._nodeMap[item].$drag(x2, y2);
+                        })
                     }
                     this.$emit('drag', {
                         e,
@@ -201,9 +204,10 @@ export default class Engine extends BaseV{
                         dx = x2 - x1,
                         dy = y2 - y1;
                     if(dragstart) {
-                        if(comp) {
-                            // this.recordDragEnd(comp);
-                            comp.$dragend && comp.$dragend(x2, y2);
+                        if(this.selecteds.length>0) {
+                            this.selecteds.forEach(item => {
+                                this._nodeMap[item].$dragend && this._nodeMap[item].$dragend(x2, y2);
+                            })
                         }
                         this.$emit('dragend', {
                             e,
@@ -215,13 +219,12 @@ export default class Engine extends BaseV{
                     }
                     
                 };
-            if(comp) {
-                comp.$selected && comp.$selected(true)
-                this.clearSelected([comp.id]);
-            }else {
-                this.clearSelected();
-            }
-            // this.clearHover([]);
+                if(comp && this.selecteds.indexOf(comp.id) === -1) {
+                    this.clearSelected([comp.id]);
+                    console.log('进入 选中 但 不属于多选', this.selecteds)
+                } else if(!comp) {
+                    this.clearSelected();
+                }
 
             canvas.addEventListener('mousemove', mousemove);
             canvas.addEventListener('mouseup', mouseup);
@@ -294,7 +297,7 @@ export default class Engine extends BaseV{
             return this._nodeMap[nodeIds.slice(-1)];
         }else if(nodeIds) {
             return this._nodeMap[nodeIds];
-        } else { // 非block元素,不存在与障碍物地图,使用老方法判断
+        } else { // 非block元素,不存在于障碍物地图,使用老方法判断
             return this.getEdgeByPoint(cx, cy); // 暂时只对edge处理
         }
     }
@@ -329,22 +332,21 @@ export default class Engine extends BaseV{
             }
         }
     }
+    // 根据range范围 获取其内的子节点(仅限根目录下的节点)
+    getChildByRange(x1, y1, x2, y2) {
+        let ids = this.Grid.checkRange(x1, y1, x2, y2);
+        let childrens = this.$children.filter(item => {
+            return ids.indexOf(''+item.id)>-1
+        })
+        this.selecteds = childrens.map(item => item.id);
+        return childrens;
+    }
     deleteSelected() {
-        console.log('----this. delete', this.selecteds); 
         this.selecteds.forEach(id => {
             let node = this._nodeMap[id];
             node.$destroy();
-            // for(let i=0; i< node.$parent.$children.length; i++) {
-            //     let n = node.$parent.$children[i];
-            //     if(n.id === id) {
-            //         n.$beforeDestroy && n.$beforeDestroy();
-            //         n.$destroy();
-            //         // node.$parent.$children.splice(i, 1);
-            //         // delete this._nodeMap[id];
-            //         break;
-            //     }
-            // }
         })
+        this.selecteds = [];
         this.repaint();
     }
     clearHover(ids = []) { // 除ids中以外的节点，清空hover状态
