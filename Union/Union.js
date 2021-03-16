@@ -8,10 +8,10 @@ export default class FlowUnion {
         
         this.uae = new Engine({
             options: uae,
+            ratio,
         })
+        this.uae.ratio = ratio;
 
-        // this.uae.scale(1/ratio);
-        // this.uae.sc = ratio;
         this._init();
     }
     _init() {

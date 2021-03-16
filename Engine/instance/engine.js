@@ -17,6 +17,7 @@ export default class Engine extends BaseV{
         this._drawing = false; // 判断 是否 正在渲染中
 
         this.sc = 1; // canvas伸缩比例
+        this.ratio = def.ratio || 1; // 高精度比例
         this.tx = 0; // translate x/y的距离
         this.ty = 0;
 
@@ -335,25 +336,22 @@ export default class Engine extends BaseV{
         let nodeIds = Grid.checkPoint(cx, cy);
 
         if(nodeIds && Array.isArray(nodeIds)) {
-            // console.log('x,y', x,y,'cx, cy', cx, cy, nodeIds)
             return this._nodeMap[nodeIds.slice(-1)];
         }else if(nodeIds) {
-            // console.log('x,y', x,y,'cx, cy', cx, cy)
             return this._nodeMap[nodeIds];
         } else { // 非block元素,不存在于障碍物地图,使用老方法判断
-            let edge = this.getEdgeByPoint(x, y); // 暂时只对edge处理
-            // if(edge) console.log('x,y', x,y,'cx, cy', cx, cy);
-            return edge;
+            let ex = x*this.ratio,
+                ey = y*this.ratio;
+
+            return this.getEdgeByPoint(ex, ey); // 暂时只对edge处理
         }
     }
     getEdgeByPoint(x, y) { // 特例：通过point获取edge或其子元素
-        // console.log('find edge x, y', x,y);
         let _findEdge = function (childrens) {
             for(let i=0,item; i<childrens.length,item=childrens[i]; i++) {
                 if(item.$children) {
                     let t = _findEdge(x, y);
                     if(t) {
-                        // console.log('---getEdgeByPoint',)
                         return t;
                     }
                 }
@@ -433,7 +431,7 @@ export default class Engine extends BaseV{
     scale(rate) {
         this.ctx.scale(rate, rate);
         this.repaint();
-        this.sc = rate;
+        this.sc = this.sc * rate;
     }
     translateX(tx) {
         this.ctx.translate(tx - this.tx, 0);
