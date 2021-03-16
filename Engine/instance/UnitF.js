@@ -199,13 +199,16 @@ class UnitF extends BaseV {
         Grid.handleUpdate(comp);
     }
     isBorderX(x) {
-        if(x<2 || x > (this.$uae.canvas.width-this.bounds.width)) {
+        // 在引入高分辨率后，canvas.width 宽度不是可视宽度，
+        let width = Number(this.$uae.canvas.style.width.slice(0, -2));
+        if(x<2 || x > (width-this.bounds.width-8)) {
             return true;
         }
         return false;
     }
     isBorderY(y) {
-        if(y<2 || y > (this.$uae.canvas.height-this.bounds.height-2)) {
+        let height = Number(this.$uae.canvas.style.height.slice(0, -2));
+        if(y<2 || y > (height-this.bounds.height-8)) {
             return true;
         }
         return false;

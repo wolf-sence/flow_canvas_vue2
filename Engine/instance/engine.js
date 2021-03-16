@@ -46,6 +46,26 @@ export default class Engine extends BaseV{
         }
         this.$templateClass[name] = compF
     }
+    // comp为主节点，mixin为混入数据，冲突数据以comp原数据为准
+    mixinComp(comp, mixin) {
+        if(mixin.mixin) { // 嵌套混入
+            let mixinName = mixin.mixin;
+            if(mixinName) {
+                if(this.$templateClass[mixinName]) {
+                    mixin = this.$templateClass[mixinName]&&this.mixinComp(mixin, this.$templateClass[mixinName])
+                }else {
+                    errorTip(`we cann't find mixin-template: ${mixinName} when we're trying to register ${mixin.name}`);
+                }
+            }
+        }
+        let ret = Object.assign({}, mixin, comp);
+        ret.data = Object.assign({}, (mixin || {}).data || {}, (comp || {}).data || {});
+        ret.methods = Object.assign({}, (mixin || {}).methods || {}, (comp || {}).methods || {});
+        ret.watch = Object.assign({}, (mixin || {}).watch || {}, (comp || {}).watch || {});
+        ret.computed = Object.assign({}, (mixin || {}).computed || {}, (comp || {}).computed || {});
+        ret.props = [].concat((mixin || {}).props || []).concat(comp.props || []);
+        return ret;
+    }
     // 根据类型创建节点
     createNode(def) {
         let { 
@@ -77,15 +97,6 @@ export default class Engine extends BaseV{
         return node;
         // Grid.handleCreate(node);
     }
-    mixinComp(comp, mixin) {
-        let ret = Object.assign({}, comp, mixin);
-        ret.data = Object.assign({}, (mixin || {}).data || {}, (comp || {}).data || {});
-        ret.methods = Object.assign({}, (mixin || {}).methods || {}, (comp || {}).methods || {});
-        ret.watch = Object.assign({}, (mixin || {}).watch || {}, (comp || {}).watch || {});
-        ret.computed = Object.assign({}, (mixin || {}).computed || {}, (comp || {}).computed || {});
-        ret.props = [].concat((mixin || {}).props || []).concat(comp.props || []);
-        return ret;
-    }
     getTemplate(type) {
         if(this.$templateClass[type]) {
             return deepClone(this.$templateClass[type]);
@@ -96,6 +107,18 @@ export default class Engine extends BaseV{
     }
     _init(def) {
         this._bind();
+        this.ctx.roundRect = function (x, y, width, height, radius) {
+            let ctx = this;
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            radius && ctx.arcTo(x + width, y, x + width, y + radius, radius);
+            ctx.lineTo(x + width, y + height - radius);
+            radius && ctx.arcTo(x + width, y + height, x + width - radius, y + height, radius);
+            ctx.lineTo(x + radius, y + height);
+            radius && ctx.arcTo(x, y + height, x, y + height - radius, radius);
+            ctx.lineTo(x, y + radius);
+            radius && ctx.arcTo(x, y, x + radius, y, radius);
+        }
     }
     _bind() {
         let canvas = this.$canvas;
@@ -105,9 +128,13 @@ export default class Engine extends BaseV{
                 cx = this._toCanvasX(e.offsetX),
                 cy = this._toCanvasY(e.offsetY);
             let comp = this.getCompByPoint(x, y, cx, cy);
-            if (comp) {
-                comp.$click && comp.$click(cx, cy);
-            }
+            console.log('enter click 事件')
+            // if (comp) {
+            //     this.clearSelected([comp.id])
+
+            // }else {
+            //     this.clearSelected([])
+            // }
             this.$emit('click', {
                 e,
                 x: this._toCanvasX(x),
@@ -139,9 +166,7 @@ export default class Engine extends BaseV{
             let comp = this.getCompByPoint(x, y, cx, cy);
             if (comp) {
                 canvas.style.cursor = comp.$cursor;
-
-                comp.isHover = true;
-                comp.$hover && comp.$hover(cx, cy);
+                comp.$hover && comp.$hover(true);
                 this.clearHover([comp.id]);
             }else {
                 this.clearHover();
@@ -184,6 +209,7 @@ export default class Engine extends BaseV{
                         })
                     }
                     if(this.selecteds.length>0) {
+                        canvas.style.cursor = 'pointer';
                         this.selecteds.forEach(item => {
                             this._nodeMap[item].$drag && this._nodeMap[item].$drag(x2, y2);
                         })
@@ -199,14 +225,16 @@ export default class Engine extends BaseV{
                 mouseup = e => {
                     canvas.removeEventListener('mousemove', mousemove);
                     canvas.removeEventListener('mouseup', mouseup);
-                    let x2 = e.offsetX,
-                        y2 = e.offsetY,
+                    canvas.removeEventListener('mouseleave', mouseup);
+                    let x2 = this._toCanvasX(e.offsetX),
+                        y2 = this._toCanvasX(e.offsetY),
                         dx = x2 - x1,
                         dy = y2 - y1;
                     if(dragstart) {
                         if(this.selecteds.length>0) {
                             this.selecteds.forEach(item => {
                                 this._nodeMap[item].$dragend && this._nodeMap[item].$dragend(x2, y2);
+                                this._nodeMap[item].$mouseup && this._nodeMap[item].$mouseup();
                             })
                         }
                         this.$emit('dragend', {
@@ -221,13 +249,25 @@ export default class Engine extends BaseV{
                 };
                 if(comp && this.selecteds.indexOf(comp.id) === -1) {
                     this.clearSelected([comp.id]);
-                    console.log('进入 选中 但 不属于多选', this.selecteds)
                 } else if(!comp) {
                     this.clearSelected();
+                }
+                if(comp) {
+                    comp.$mousedown && comp.$mousedown()
                 }
 
             canvas.addEventListener('mousemove', mousemove);
             canvas.addEventListener('mouseup', mouseup);
+            canvas.addEventListener('mouseleave', mouseup);
+        })
+        canvas.addEventListener('mouseup', e => {
+            let x1 = this._toCanvasX(e.offsetX),
+                y1 = this._toCanvasY(e.offsetY),
+                comp = this.getCompByPoint(e.offsetX, e.offsetY, x1, y1, false);
+
+            if(comp) {
+                comp.$mouseup && comp.$mouseup();
+            }
         })
         canvas.addEventListener('mouseenter', e => {
             this.$emit('mouseenter', {
@@ -285,6 +325,7 @@ export default class Engine extends BaseV{
             this._drawing = false;
             let children = this.RS.getSequence(); // 拿到渲染队列
             this.ctx.clearRect(0, 0, this.$canvas.width, this.$canvas.height);
+            this._renderBg(); // 渲染背景
             _draw(children);
         }, 10)
     }
@@ -294,20 +335,25 @@ export default class Engine extends BaseV{
         let nodeIds = Grid.checkPoint(cx, cy);
 
         if(nodeIds && Array.isArray(nodeIds)) {
+            // console.log('x,y', x,y,'cx, cy', cx, cy, nodeIds)
             return this._nodeMap[nodeIds.slice(-1)];
         }else if(nodeIds) {
+            // console.log('x,y', x,y,'cx, cy', cx, cy)
             return this._nodeMap[nodeIds];
         } else { // 非block元素,不存在于障碍物地图,使用老方法判断
-            return this.getEdgeByPoint(cx, cy); // 暂时只对edge处理
+            let edge = this.getEdgeByPoint(x, y); // 暂时只对edge处理
+            // if(edge) console.log('x,y', x,y,'cx, cy', cx, cy);
+            return edge;
         }
     }
     getEdgeByPoint(x, y) { // 特例：通过point获取edge或其子元素
+        // console.log('find edge x, y', x,y);
         let _findEdge = function (childrens) {
             for(let i=0,item; i<childrens.length,item=childrens[i]; i++) {
                 if(item.$children) {
                     let t = _findEdge(x, y);
                     if(t) {
-                        console.log('---getEdgeByPoint',)
+                        // console.log('---getEdgeByPoint',)
                         return t;
                     }
                 }
@@ -366,15 +412,17 @@ export default class Engine extends BaseV{
     clearSelected(ids = []) { // 除ids中以外的节点，清空selected状态
         this.$children.forEach(node => {
             if(ids.indexOf(node.id) === -1) {
-                // node.isSelect = false;
-                node.$selected && node.$selected(false);
+                node.$click && node.$click(false);
+            }else {
+                node.$click && node.$click(true);
             }
         })
         for(let key in this._nodeMap) {
             let node = this._nodeMap[key];
-            // console.log('node.id', node.id);
             if(node.$type === 'edge' && ids.indexOf(node.id) === -1) {
-                node.$selected && node.$selected(false);
+                node.$click && node.$click(false);
+            }else if(node.$type === 'edge') {
+                node.$click && node.$click(true);
             }
         }
         this.selecteds = ids;
@@ -402,5 +450,27 @@ export default class Engine extends BaseV{
     }
     _toCanvasY(y) {
         return y / this.sc - this.ty;
+    }
+    
+    _renderBg() {
+        if(this.isRenderBg) {
+            let ctx = this.ctx;
+            ctx.beginPath();
+            let width = this.$canvas.width;
+            let height = this.$canvas.height;
+            let steps = 10;
+            ctx.lineWidth = 1;
+            for (let i = 0.5; i < width; i += steps) {
+                ctx.moveTo(i, 0); ctx.lineTo(i, height); 
+            } 
+            for(let i = 0.5; i < height; i += steps) {
+                ctx.moveTo(0, i);
+                ctx.lineTo(width, i); 
+            } 
+            ctx.strokeStyle = '#eee'; 
+            ctx.stroke();
+
+            this.ctx.closePath();
+        }
     }
 }

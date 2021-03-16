@@ -102,6 +102,12 @@ function initLifecycle(vm, opts) {
     if(typeof opts.selected === 'function') {
         vm.$selected = vm.selected = opts.selected;
     }
+    if(typeof opts.mousedown === 'function') {
+        vm.$mousedown = vm.mousedown = opts.mousedown;
+    }
+    if(typeof opts.mouseup === 'function') {
+        vm.$mouseup = vm.mouseup = opts.mouseup;
+    }
 }
 
 

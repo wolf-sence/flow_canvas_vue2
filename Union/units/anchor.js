@@ -51,8 +51,9 @@ export default {
     computed: {
         'bounds': function() {
             let data = this.$parent.data;
-            let pbounds = data.bounds;
-            let size = parseInt(data.bounds.width / (data.output.length + 1));
+            // let pbounds = data.bounds;
+            let pbounds  = this.$parent.bounds;
+            let size = parseInt(pbounds.width / (data.output.length + 1));
             let r = 4;
             // 原型绘图，坐标需要 以左上角为单位
             let x = pbounds.x + size * (this.index + 1) - r,

@@ -9,7 +9,7 @@
 
 <body>
     <div id ="app">
-        <canvas width="1800" height="500" id="canvas" class="canvas_wrapper"></canvas>
+        <canvas width="1200" height="500" id="canvas" class="canvas_wrapper"></canvas>
     </div>
     <!-- <script>
         console.log('enter index')
@@ -17,17 +17,14 @@
     <script async type="module">
         import FlowUnion from '../Union/Union.js';
 
-        let canvas = document.getElementById('canvas');
-
-        let flow = new FlowUnion(canvas);
-
         let root1 = {
             color: 'black',
+            desp: 'test1',
             type: 'step',
             id: '1',
             bounds: {
                 width: 160,
-                height: 40,
+                height: 30,
                 x: 120,
                 y: 120,
             },
@@ -53,11 +50,12 @@
 
         let root2 = {
             color: 'blue',
-            type: 'step',
+            type: 'common',
+            desp: '测试节点1',
             id: '2',
             bounds: {
                 width: 160,
-                height: 40,
+                height: 30,
                 x: 400,
                 y: 200,
             },
@@ -82,11 +80,12 @@
         }
         let root3 = {
             color: 'gray',
-            type: 'step',
+            type: 'multOutput',
+            desp: '23452345524526',
             id: '3',
             bounds: {
                 width: 160,
-                height: 40,
+                height: 30,
                 x: 320,
                 y: 360,
             },
@@ -109,8 +108,72 @@
                 },
             ]
         }
+        let root4 = {
+            type: 'normalEnd',
+            desp: 'asdf',
+            id: '14',
+            bounds: {
+                width: 62,
+                height: 62,
+                x: 220,
+                y: 260,
+            },
+        }
+        let root5 = {
+            type: 'start',
+            desp: 'asdf',
+            id: '15',
+            bounds: {
+                width: 62,
+                height: 62,
+                x: 420,
+                y: 260,
+            },
+            output: [
+                {
+                    name: "成功",
+                    value: "0",
+                    color: "#21c562",
+                },
+            ]
+        }
+        let root6 = {
+            type: 'diyEnd',
+            desp: 'asdf',
+            id: '16',
+            bounds: {
+                width: 62,
+                height: 62,
+                x: 420,
+                y: 160,
+            },
+        }
+        // root2, root3, root4, 
+        let arr = [root1, root2, root3, root4, root5, root6];
 
-        let arr = [root1, root2, root3];
+
+        var canvas = document.getElementById('canvas');
+        let context = canvas.getContext("2d");
+        // canvas.width = document.body.clientWidth;
+        // canvas.height = canvas.width;
+        
+        var devicePixelRatio = window.devicePixelRatio || 1;
+        var backingStoreRatio = context.webkitBackingStorePixelRatio ||
+            context.mozBackingStorePixelRatio ||
+            context.msBackingStorePixelRatio ||
+            context.oBackingStorePixelRatio ||
+            context.backingStorePixelRatio || 1;
+        var ratio = devicePixelRatio / backingStoreRatio;
+        console.log('ratio', ratio);
+
+        canvas.style.width = canvas.width+"px";
+        canvas.style.height = canvas.height+"px";
+
+        canvas.width = canvas.width * ratio;
+        canvas.height = canvas.height * ratio;
+        context.scale(ratio, ratio)
+
+        let flow = new FlowUnion(canvas, ratio);
         window.flow = flow.uae;
         flow.loopNodeList(arr);
 
@@ -123,6 +186,8 @@
 <style>
     .canvas_wrapper{
         border: 1px solid black;
+        width: 1200px;
+        height: 500px;
     }
 </style>
 </html>

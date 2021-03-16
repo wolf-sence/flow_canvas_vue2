@@ -81,7 +81,7 @@ export default {
             let comp = this.$uae.getCompByPoint(x, y, x, y);
 
             if(comp && comp.$link) {
-                this.endPoints = comp.bounds;
+                this.endPoints = comp.data.bounds;
             } else {
                 this.endPoints = {
                     x,
@@ -130,6 +130,7 @@ export default {
             let px = 0, 
                 py = 0;
             let start = path[0];
+            ctx.lineWidth = 12;
             ctx.beginPath();
             ctx.moveTo(start.x, start.y);
             for (let i = 1, item; i < path.length; i++) {

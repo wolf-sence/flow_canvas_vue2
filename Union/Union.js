@@ -3,13 +3,15 @@ import units from './units/index.js';
 import uae from './uae.js';
 
 export default class FlowUnion {
-    constructor(canvas) {
+    constructor(canvas, ratio=1) {
         uae.canvas = canvas;
         
         this.uae = new Engine({
             options: uae,
         })
 
+        // this.uae.scale(1/ratio);
+        // this.uae.sc = ratio;
         this._init();
     }
     _init() {

@@ -14,9 +14,9 @@ export default {
         if (this.x1 !== this.x2 || this.y1 !== this.y2) {
             this.ctx.beginPath();
             this.ctx.rect(this.x1, this.y1, this.x2 - this.x1, this.y2 - this.y1);
-            this.ctx.fillStyle = '#E6E6E8';
+            this.ctx.fillStyle = 'rgba(100, 100, 100, .3)';
             this.ctx.fill();
-            // this.ctx.lineWidth = 0.5;
+            this.ctx.lineWidth = 0.5;
             this.ctx.strokeStyle = 'rgba(100, 100, 100, .3)';
             this.ctx.stroke();
             this.ctx.closePath();
