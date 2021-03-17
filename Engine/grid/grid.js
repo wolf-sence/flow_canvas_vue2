@@ -5,8 +5,6 @@ class Grid {
         this.grid = new Map();
         // 以10px为一个单位进行记录
         this.rate = 5;
-        
-        this.startBounds = null;
 
     }
     // 检查 (x, y)点是否存在节点障碍物

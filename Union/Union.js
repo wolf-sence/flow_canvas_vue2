@@ -25,6 +25,7 @@ export default class FlowUnion {
     }
     _initData() {
         this.selRect = null; // 拖动多选框
+        this.guideLine = null; // 引导线
     }
     _registerUnit() {
         for(let i=0; i<units.length; i++) {
@@ -35,6 +36,9 @@ export default class FlowUnion {
     _initUnit() {
         this.selRect = this.uae.createNode({
             type: 'selRect',
+        })
+        this.guideLine = this.uae.createNode({
+            type: 'guideLine',
         })
     }
     _bind() {
@@ -62,17 +66,23 @@ export default class FlowUnion {
         }
     }
     handleDrag(event) {
-        this.selRect.handleDrag(event.x, event.y);
+        if(!event.comp) {
+            this.selRect.handleDrag(event.x, event.y);
+        } else if(event.comp.$block && event.comp.$link){
+            this.guideLine.calcGuideLine(event.comp);
+        }
+        
     }
     handleDragEnd(event) {
         this.selRect.handleDragEnd(event.x, event.y);
+        this.guideLine.clearGuideLine(event.comp);
     }
 
     loopNodeList(nodeList) {
         for(let i=0; i<nodeList.length; i++) {
             let node = nodeList[i]
             this.uae.createNode({
-                type: node.type,
+                type: node.nodeType,
                 data: node,
             })
         }

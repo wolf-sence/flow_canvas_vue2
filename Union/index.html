@@ -18,13 +18,12 @@
         import FlowUnion from '../Union/Union.js';
 
         let root1 = {
-            color: 'black',
             desp: 'test1',
-            type: 'step',
+            nodeType: 'step',
             id: '1',
             bounds: {
                 width: 160,
-                height: 30,
+                height: 25,
                 x: 120,
                 y: 120,
             },
@@ -37,25 +36,16 @@
                     color: "#f12626",
                     description: "失败锚点"
                 },
-                // {
-                //     name: "成功",
-                //     paramName: "sucessReturn",
-                //     criteria: "==",
-                //     value: "1",
-                //     color: "#21c562",
-                //     description: "成功出口锚点"
-                // },
             ]
         }
 
         let root2 = {
-            color: 'blue',
-            type: 'common',
-            desp: '测试节点1',
+            nodeType: 'common',
+            desp: '测试节点1测试节点1测试节点1',
             id: '2',
             bounds: {
                 width: 160,
-                height: 30,
+                height: 25,
                 x: 400,
                 y: 200,
             },
@@ -79,13 +69,12 @@
             ]
         }
         let root3 = {
-            color: 'gray',
-            type: 'multOutput',
+            nodeType: 'multOutput',
             desp: '23452345524526',
             id: '3',
             bounds: {
                 width: 160,
-                height: 30,
+                height: 25,
                 x: 320,
                 y: 360,
             },
@@ -109,23 +98,23 @@
             ]
         }
         let root4 = {
-            type: 'normalEnd',
-            desp: 'asdf',
+            nodeType: 'normalEnd',
+            desp: 'normalEnd',
             id: '14',
             bounds: {
-                width: 62,
-                height: 62,
-                x: 220,
-                y: 260,
+                width: 55,
+                height: 55,
+                x: 1140,
+                y: 430,
             },
         }
         let root5 = {
-            type: 'start',
-            desp: 'asdf',
+            nodeType: 'start',
+            desp: 'start',
             id: '15',
             bounds: {
-                width: 62,
-                height: 62,
+                width: 55,
+                height: 55,
                 x: 420,
                 y: 260,
             },
@@ -138,18 +127,93 @@
             ]
         }
         let root6 = {
-            type: 'diyEnd',
-            desp: 'asdf',
+            nodeType: 'diyEnd',
+            desp: 'diyEnd',
             id: '16',
             bounds: {
-                width: 62,
-                height: 62,
+                width: 55,
+                height: 55,
                 x: 420,
                 y: 160,
             },
         }
-        // root2, root3, root4, 
-        let arr = [root1, root2, root3, root4, root5, root6];
+        let root7 = {
+            nodeType: 'transit',
+            id: '17',
+            bounds: {
+                width: 55,
+                height: 55,
+                x: 490,
+                y: 260,
+            },
+            output: [
+                {
+                    name: "成功",
+                    value: "0",
+                    color: "#21c562",
+                },
+            ]
+        }
+        let root8 = {
+            nodeType: 'node',
+            desp: '测试node节点',
+            id: '22',
+            bounds: {
+                width: 160,
+                height: 25,
+                x: 590,
+                y: 240,
+            },
+            output: [
+                {
+                    name: "失败",
+                    paramName: "failReturn",
+                    criteria: "==",
+                    value: "0",
+                    color: "#f12626",
+                    description: "失败锚点"
+                },
+                {
+                    name: "成功",
+                    paramName: "sucessReturn",
+                    criteria: "==",
+                    value: "1",
+                    color: "#21c562",
+                    description: "成功出口锚点"
+                },
+            ]
+        }
+        let root9 = {
+            nodeType: 'defaultException',
+            desp: 'defaultException',
+            id: '23',
+            risk: '1',
+            bounds: {
+                width: 160,
+                height: 25,
+                x: 680,
+                y: 50,
+            },
+            output: [
+                {
+                    name: "失败",
+                    paramName: "failReturn",
+                    criteria: "==",
+                    value: "0",
+                    color: "#f12626",
+                    description: "失败锚点"
+                },
+                {
+                    name: "成功",
+                    paramName: "sucessReturn",
+                    criteria: "==",
+                    value: "1",
+                    color: "#21c562",
+                    description: "成功出口锚点"
+                },
+            ]
+        }
+        let arr = [root1, root2, root3, root4, root5, root6, root7, root8, root9];
 
 
         var canvas = document.getElementById('canvas');

@@ -202,12 +202,14 @@ export default class Engine extends BaseV{
                                 this._nodeMap[item].$dragstart && this._nodeMap[item].$dragstart(x2, y2); // 鼠标的定位
                             })
                         }
-                        this.$emit('dragstart', {
+                        let event = {
                             e,
                             x: x1,
                             y: y1,
                             comp: comp,
-                        })
+                        }
+                        // this.$dragstart && this.$dragstart(event)
+                        this.$emit('dragstart', event)
                     }
                     if(this.selecteds.length>0) {
                         canvas.style.cursor = 'pointer';
@@ -215,13 +217,16 @@ export default class Engine extends BaseV{
                             this._nodeMap[item].$drag && this._nodeMap[item].$drag(x2, y2);
                         })
                     }
-                    this.$emit('drag', {
+                    let event = {
                         e,
                         x: x2,
                         y: y2,
+                        comp: comp,
                         dx: dx,
                         dy: dy,
-                    })
+                    };
+                    // this.$drag && this.$drag(event);
+                    this.$emit('drag', event)
                 },
                 mouseup = e => {
                     canvas.removeEventListener('mousemove', mousemove);
@@ -238,13 +243,15 @@ export default class Engine extends BaseV{
                                 this._nodeMap[item].$mouseup && this._nodeMap[item].$mouseup();
                             })
                         }
-                        this.$emit('dragend', {
+                        let event = {
                             e,
                             x: x2,
                             y: y2,
                             dx: dx,
                             dy: dy,
-                        })
+                        };
+                        // this.$dragend && this.$dragend(event);
+                        this.$emit('dragend', event)
                     }
                     
                 };
@@ -442,6 +449,12 @@ export default class Engine extends BaseV{
         this.ctx.translate(0, ty - this.ty);
         this.ty = ty;
         this.repaint();
+    }
+    _getWidth() {
+        return this.canvas.width/this.ratio;
+    }
+    _getHeight() {
+        return this.canvas.height/this.ratio;
     }
     _toCanvasX(x) {
         return x / this.sc - this.tx;

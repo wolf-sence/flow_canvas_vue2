@@ -1,6 +1,8 @@
 export default {
     name: 'root',
     props: ['data'],
+    cursor: 'pointer',
+    dragable: true,
     data: {
         edges: [], // 连接至此节点的edge id array
     },

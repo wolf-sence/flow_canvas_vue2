@@ -10,6 +10,11 @@ import multOutput from './step/multOutput.js';
 import normalEnd from './node/normalEnd.js';
 import start from './node/start.js';
 import diyEnd from './node/diyEnd.js';
+import transit from './node/transit.js';
+import node from './node/node.js';
+import defaultException from './node/defaultException.js';
+import risk from './node/risk.js';
+import guideLine from './guideLine.js';
 
 export default [
     root,
@@ -24,4 +29,9 @@ export default [
     normalEnd,
     start,
     diyEnd,
+    transit,
+    node,
+    defaultException,
+    risk,
+    guideLine,
 ]

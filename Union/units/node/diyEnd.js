@@ -15,7 +15,7 @@ export default {
             let width = parseInt(ctx.measureText(desp).width)
 
             ctx.fillStyle = '#182932';
-            ctx.font = '14px Arial';
+            ctx.font = '12px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             if(width>56) {

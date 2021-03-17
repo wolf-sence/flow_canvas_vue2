@@ -55,7 +55,7 @@ export default {
             let bounds = this.bounds;
             let data = this.data;
             ctx.fillStyle = '#182932';
-            ctx.font = '14px Arial';
+            ctx.font = '12px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText('正常结束', bounds.x+origin.r, bounds.y+origin.r+3);
