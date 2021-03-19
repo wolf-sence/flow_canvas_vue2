@@ -21,7 +21,7 @@ export default class RenderSequence {
         let select = this.$children.filter(item => item.isSelect && (!item.isHover));
         let hover = this.$children.filter(item => item.isHover);
 
-        return noStatus.concat(select, hover);
+        return noStatus.concat(hover, select);
 
     }
     handleCreate(comp) {

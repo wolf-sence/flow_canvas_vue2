@@ -6,7 +6,7 @@ export default {
     name: 'node',
     mixin: 'root',
     data: {
-        lineWidth: 2,
+        lineWidth: 3,
         hoverColor: '#C8D8FC',
         selectColor: 'rgba(0, 144, 255, 0.5)',
         mainColor: '#527292',
@@ -32,6 +32,8 @@ export default {
         ctx.strokeStyle = this.mainColor;
         ctx.roundRect(bounds.x, bounds.y, bounds.width, bounds.height, this.radius);
         ctx.stroke();
+        ctx.fillStyle = '#fff';
+        ctx.fill();
         ctx.closePath();
 
         ctx.fillStyle = '#333333';
@@ -56,11 +58,11 @@ export default {
             let radius = 4;
             ctx.beginPath();
             ctx.moveTo(bounds.x-4, bounds.y+2);
-            ctx.lineTo(bounds.x+3, bounds.y-14);
-            ctx.arcTo(bounds.x+4, bounds.y-16, bounds.x+8, bounds.y-16, radius);
-            ctx.lineTo(bounds.x+28, bounds.y-16);
-            ctx.arcTo(bounds.x+33, bounds.y-16, bounds.x+37, bounds.y-14, radius);
-            ctx.lineTo(bounds.x+38, bounds.y-7);
+            ctx.lineTo(bounds.x+2, bounds.y-14);
+            ctx.arcTo(bounds.x+4, bounds.y-18, bounds.x+8, bounds.y-18, radius);
+            ctx.lineTo(bounds.x+33, bounds.y-18);
+            ctx.arcTo(bounds.x+34, bounds.y-18, bounds.x+37, bounds.y-12, radius);
+            ctx.lineTo(bounds.x+39, bounds.y-7);
             ctx.arcTo(bounds.x+40, bounds.y-4, bounds.x+44, bounds.y-4, radius);
             ctx.lineTo(bounds.x+bounds.width-2, bounds.y-4); // 右上角
             ctx.arcTo(bounds.x+bounds.width+4, bounds.y-4, bounds.x+bounds.width+4, bounds.y+4, radius);
@@ -81,7 +83,7 @@ export default {
             let height = 12; // 高度
             let radius = 2; // 圆弧大小
             let rigthX = 1; // x坐标起始误差值
-            let rightY = 0; // y坐标起始误差值
+            let rightY = -2; // y坐标起始误差值
             ctx.beginPath();
             ctx.moveTo(bounds.x+rigthX, bounds.y+rightY);
             ctx.lineTo(bounds.x+rigthX+(bmW-upW)/2-radius, bounds.y+rightY-height+radius);
@@ -99,7 +101,7 @@ export default {
             ctx.font = '12px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(data.id, bounds.x+bmW/2+rightY,bounds.y-height/2+rightY);
+            ctx.fillText(data.id, bounds.x+bmW/2+rigthX,bounds.y-height/2+rightY);
         },
         drawIcon() {
             let leftWidth = this.leftWidth;

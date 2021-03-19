@@ -15,7 +15,7 @@
         console.log('enter index')
     </script> -->
     <script async type="module">
-        import FlowUnion from '../Union/Union.js';
+        import FlowUnion from './Flow.js';
 
         let root1 = {
             desp: 'test1',
@@ -121,7 +121,7 @@
             output: [
                 {
                     name: "成功",
-                    value: "0",
+                    value: "1",
                     color: "#21c562",
                 },
             ]
@@ -149,7 +149,7 @@
             output: [
                 {
                     name: "成功",
-                    value: "0",
+                    value: "1",
                     color: "#21c562",
                 },
             ]
@@ -213,8 +213,8 @@
                 },
             ]
         }
-        let arr = [root1, root2, root3, root4, root5, root6, root7, root8, root9];
-
+        //  root2, root3, root4, root5, root6, root7, root8, 
+        let arr = [root1,root9];
 
         var canvas = document.getElementById('canvas');
         let context = canvas.getContext("2d");

@@ -55,7 +55,6 @@ export function _parseVIf(vm, attr) {
 
     if(bool) {
         let propsData = mountProps(vm, attr);
-        console.log('from resolve propsData', propsData)
         root.createNode({
             type: attr.tag,
             parent: vm,
@@ -68,7 +67,7 @@ export function _parseVIf(vm, attr) {
 export function _parse(vm, attr) {
     let children = vm.$children;
     let root = vm.$uae;
-    // console.log('vm, attr', vm, attr);
+    
     for(let i=children.length-1; i>=0; i--) {
         if(!children[i].$vIfItem && !children[i].$vForItem) {
             children.splice(i, 1);
@@ -76,7 +75,6 @@ export function _parse(vm, attr) {
     }
     
     let propsData = mountProps(vm, attr);
-    console.log('from _parse normal propsData', propsData);
     root.createNode({
         type: attr.tag,
         parent: vm,
@@ -93,7 +91,10 @@ function mountProps(vm, attr) {
             if(key.startsWith(':')) {
                 k = key.slice(1);
                 ret[k] = new Function('vm', `with(vm) {return vm.${propsMap[key]}}`).call(vm, vm);
-            } else {
+            } else if(key.startsWith('@')) {
+                k = key.slice(1);
+                ret[k] = new Function('vm', `with(vm) {return vm.${propsMap[key]}}`).call(vm, vm);
+            }else {
                 ret[k] = propsMap[k];
             }
             

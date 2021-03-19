@@ -9,10 +9,19 @@ export default class FlowUnion {
         this.uae = new Engine({
             options: uae,
             ratio,
+            autoAdsorpt: true,
         })
-        this.uae.ratio = ratio;
 
         this._init();
+    }
+    loopNodeList(nodeList) {
+        for(let i=0; i<nodeList.length; i++) {
+            let node = nodeList[i]
+            this.uae.createNode({
+                type: node.nodeType,
+                data: node,
+            })
+        }
     }
     _init() {
         this._initData();
@@ -51,6 +60,9 @@ export default class FlowUnion {
         this.uae.$on('dragend', (event) => {
             this.handleDragEnd(event);
         });
+        this.uae.$on('dblclick', event => {
+            this.handleDblclick(event);
+        })
     }
     /**
      * @param  {
@@ -77,14 +89,7 @@ export default class FlowUnion {
         this.selRect.handleDragEnd(event.x, event.y);
         this.guideLine.clearGuideLine(event.comp);
     }
-
-    loopNodeList(nodeList) {
-        for(let i=0; i<nodeList.length; i++) {
-            let node = nodeList[i]
-            this.uae.createNode({
-                type: node.nodeType,
-                data: node,
-            })
-        }
+    handleDblclick(event) {
+        
     }
 }

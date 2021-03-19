@@ -22,7 +22,7 @@ const sharedPropertyDefinition = {
 export function initMixin(FCV) {
     FCV.prototype._init_ = function (attr) {
         const vm = this;
-        vm.$uid = vm.id = uid++;
+        vm.$uid = uid++;
         vm.$options = attr.options;
         vm.$type = attr.type;
         vm.$parent = attr.parent;
@@ -40,16 +40,21 @@ export function initMixin(FCV) {
 function mountProps(vm, attr) { // 将外部传入的props挂载至实例;
     let propsData = attr.propsData || {};
     let propsKey = attr.options.props || [];
-    for(let i=0; i<propsKey.length; i++) {
-        let key = propsKey[i]
-        vm.$props[key] = propsData[key];
+
+    let keys = Object.keys(propsData);
+    for(let key of keys) {
+        if(propsKey.indexOf(key) !== -1) {
+            vm.$props[key] = propsData[key];
+        }else if(propsData[key] instanceof Function) {
+            vm.$props[key] = propsData[key];
+        }
     }
 }
 function initState(vm) {
     let opts = vm.$options;
     if(opts.template) initTemplate(vm, opts.template);
 
-    if(opts.props) initProps(vm, opts.props);
+    initProps(vm, opts.props);
 
     initLifecycle(vm, opts);
     
@@ -114,8 +119,16 @@ function initLifecycle(vm, opts) {
 function initProps(vm) {
     let props = vm.$props;
     let keys = Object.keys(props);
+    let parent = vm.$parent;
+
     for(let i=0; i<keys.length; i++) {
-        proxy(vm, '_props', keys[i]);
+        if(typeof props[keys[i]] === 'function') {
+            vm[keys[i]] = () => {
+                props[keys[i]].apply(parent, arguments);
+            };
+        }else {
+            proxy(vm, '_props', keys[i]);
+        }
     }
     observe(props);
 }

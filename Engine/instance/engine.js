@@ -20,6 +20,7 @@ export default class Engine extends BaseV{
         this.ratio = def.ratio || 1; // 高精度比例
         this.tx = 0; // translate x/y的距离
         this.ty = 0;
+        this.$autoAdsorpt = def.autoAdsorpt || false; // 是否根据准线自动吸附
 
         this.$canvas = this.canvas = def.options.canvas;
         this.$ctx = this.ctx = this.$canvas.getContext('2d');
@@ -68,7 +69,7 @@ export default class Engine extends BaseV{
         return ret;
     }
     // 根据类型创建节点
-    createNode(def) {
+    createNode(def, isChildren = true) {
         let { 
             type,
             parent,
@@ -90,7 +91,6 @@ export default class Engine extends BaseV{
         }); // 动态响应化
 
         let children = parent ? parent.$children : this.$children;
-
         children.push(node);
 
         this._nodeMap[node.id] = node;

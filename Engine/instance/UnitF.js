@@ -7,6 +7,7 @@ import {
 } from '../../share/resolveTemp.js';
 import GridWrap from '../grid/grid.js';
 
+let id = 100;
 let Grid = GridWrap.getInstance();
 
 function initDrag(vm) {
@@ -161,7 +162,8 @@ class UnitF extends BaseV {
         vm.$uae = vm._uae = attr.uae;
         vm.$vIfItem = attr.vIfItem;
         vm.$vForItem = attr.vForItem;
-        
+        vm.id = attr.id || id++;
+
         vm.$dragable = vm.dragable = 'dragable' in opts ? opts.dragable : true;
         vm.$cursor = opts.cursor || 'pointer'; // hover时的鼠标指针
         vm.$block = 'block' in opts ? opts.block : true; // 是否计入障碍物地图

@@ -2,7 +2,7 @@
 // let img = document.createElement('img');
 // img
 let img = new Image()
-img.src = '../Union/units/chilun.png';
+img.src = '../Flow/units/chilun.png';
 
 export default {
     template: '<anchor v-for="(item, index) in data.output" :output="item" :index="index"></anchor>',
@@ -78,13 +78,10 @@ export default {
     hover(isHover) {
         this.isHover = isHover;
     },
-    mousedown() {
-        // this.lineWidth = 0.2;
-    },
-    mouseup() {
-        // this.lineWidth = 1.5;
-    },
     methods: {
+        hasEdge() {
+            return this.data.sourceConnections || [];
+        },
         drawShape(color) {
             let bounds = this.bounds;
             this.ctx.beginPath();

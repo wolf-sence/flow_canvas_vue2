@@ -1,5 +1,5 @@
 export default {
-    template: '<edge v-if="hasEdge"></edge>',
+    template: '<edge v-if="hasEdge" @handleEdgeSucc="handleEdgeSucc" @handleEdgeDey="handleEdgeDey"></edge>',
     name: 'anchor',
     props: ['output', 'index'],
     cursor: 'crosshair',
@@ -24,10 +24,15 @@ export default {
         ctx.closePath();
     },
     dragstart(x, y) {
-        this.hasEdge = false;
-        this.hasEdge = true;
-        this.edge = this.$children[0];
-        this.edge && this.edge.handleDragStart(x, y);
+        // this.hasEdge = false;
+        // this.hasEdge = true;
+        if(!this.hasEdge) {
+            this.hasEdge = true;
+            this.edge = this.$children[0];
+            this.edge && this.edge.handleDragStart(x, y);
+        }else {
+            this.edge = null;
+        }
         
     },
     drag(x, y) {
@@ -39,14 +44,26 @@ export default {
             this.edge = null;
         }
     },
+    mounted() {
+        let conns = this.$parent.hasEdge && this.$parent.hasEdge() || [];
+        for(let i=0;i<conns.length;i++) {
+            // if(conns[i].sourceTerminal == this.index) 
+        }
+    },
     methods: {
-        calcLocation(node) { // 计算该节点 被线条附着时的 坐标
-            let bounds = node.bounds;
-            return {
-                x: bounds.x + bounds.width/2,
-                y: bounds.y - 1,
-            }
+        // calcLocation(node) { // 计算该节点 被线条附着时的 坐标
+        //     let bounds = node.bounds;
+        //     return {
+        //         x: bounds.x + bounds.width/2,
+        //         y: bounds.y - 1,
+        //     }
+        // },
+        handleEdgeDey() {
+            console.log('线条销毁', this.id)
         },
+        handleEdgeSucc() {
+            console.log('线条连接成功', this.id)
+        }
     },
     computed: {
         'bounds': function() {
