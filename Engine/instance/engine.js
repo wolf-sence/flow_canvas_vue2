@@ -93,7 +93,7 @@ export default class Engine extends BaseV{
         let children = parent ? parent.$children : this.$children;
         children.push(node);
 
-        this._nodeMap[node.id] = node;
+        this._nodeMap[node.$uid] = node;
 
         return node;
         // Grid.handleCreate(node);
@@ -129,9 +129,8 @@ export default class Engine extends BaseV{
                 cx = this._toCanvasX(e.offsetX),
                 cy = this._toCanvasY(e.offsetY);
             let comp = this.getCompByPoint(x, y, cx, cy);
-            console.log('enter click 事件')
             // if (comp) {
-            //     this.clearSelected([comp.id])
+            //     this.clearSelected([comp.$uid])
 
             // }else {
             //     this.clearSelected([])
@@ -168,7 +167,7 @@ export default class Engine extends BaseV{
             if (comp) {
                 canvas.style.cursor = comp.$cursor;
                 comp.$hover && comp.$hover(true);
-                this.clearHover([comp.id]);
+                this.clearHover([comp.$uid]);
             }else {
                 this.clearHover();
                 canvas.style.cursor = 'default';
@@ -255,8 +254,8 @@ export default class Engine extends BaseV{
                     }
                     
                 };
-                if(comp && this.selecteds.indexOf(comp.id) === -1) {
-                    this.clearSelected([comp.id]);
+                if(comp && this.selecteds.indexOf(comp.$uid) === -1) {
+                    this.clearSelected([comp.$uid]);
                 } else if(!comp) {
                     this.clearSelected();
                 }
@@ -387,14 +386,14 @@ export default class Engine extends BaseV{
     getChildByRange(x1, y1, x2, y2) {
         let ids = this.Grid.checkRange(x1, y1, x2, y2);
         let childrens = this.$children.filter(item => {
-            return ids.indexOf(''+item.id)>-1
+            return ids.indexOf(''+item.$uid)>-1
         })
-        this.selecteds = childrens.map(item => item.id);
+        this.selecteds = childrens.map(item => item.$uid);
         return childrens;
     }
     deleteSelected() {
-        this.selecteds.forEach(id => {
-            let node = this._nodeMap[id];
+        this.selecteds.forEach(uid => {
+            let node = this._nodeMap[uid];
             node.$destroy();
         })
         this.selecteds = [];
@@ -402,21 +401,21 @@ export default class Engine extends BaseV{
     }
     clearHover(ids = []) { // 除ids中以外的节点，清空hover状态
         this.$children.forEach(node => {
-            if(ids.indexOf(node.id) === -1) {
+            if(ids.indexOf(node.$uid) === -1) {
                 // node.isHover = false;
                 node.$hover && node.$hover(false);
             }
         })
         for(let key in this._nodeMap) {
             let node = this._nodeMap[key];
-            if(node.$type === 'edge' && ids.indexOf(node.id) === -1) {
+            if(node.$type === 'edge' && ids.indexOf(node.$uid) === -1) {
                 node.$hover && node.$hover(false);
             }
         }
     }
     clearSelected(ids = []) { // 除ids中以外的节点，清空selected状态
         this.$children.forEach(node => {
-            if(ids.indexOf(node.id) === -1) {
+            if(ids.indexOf(node.$uid) === -1) {
                 node.$click && node.$click(false);
             }else {
                 node.$click && node.$click(true);
@@ -424,7 +423,7 @@ export default class Engine extends BaseV{
         })
         for(let key in this._nodeMap) {
             let node = this._nodeMap[key];
-            if(node.$type === 'edge' && ids.indexOf(node.id) === -1) {
+            if(node.$type === 'edge' && ids.indexOf(node.$uid) === -1) {
                 node.$click && node.$click(false);
             }else if(node.$type === 'edge') {
                 node.$click && node.$click(true);
@@ -462,7 +461,6 @@ export default class Engine extends BaseV{
     _toCanvasY(y) {
         return y / this.sc - this.ty;
     }
-    
     _renderBg() {
         if(this.isRenderBg) {
             let ctx = this.ctx;

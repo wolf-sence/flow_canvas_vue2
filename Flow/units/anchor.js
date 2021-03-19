@@ -1,5 +1,5 @@
 export default {
-    template: '<edge v-if="hasEdge" @handleEdgeSucc="handleEdgeSucc" @handleEdgeDey="handleEdgeDey"></edge>',
+    template: '<edge v-if="hasEdge" @handleEdgeSucc2="edgeSuccess" @handleEdgeDey2="edgeDestroy"></edge>',
     name: 'anchor',
     props: ['output', 'index'],
     cursor: 'crosshair',
@@ -26,6 +26,7 @@ export default {
     dragstart(x, y) {
         // this.hasEdge = false;
         // this.hasEdge = true;
+        console.log('this.hasEdge', this.hasEdge)
         if(!this.hasEdge) {
             this.hasEdge = true;
             this.edge = this.$children[0];
@@ -33,7 +34,6 @@ export default {
         }else {
             this.edge = null;
         }
-        
     },
     drag(x, y) {
         this.edge && this.edge.handleDrag(x, y);
@@ -51,18 +51,34 @@ export default {
         }
     },
     methods: {
-        // calcLocation(node) { // 计算该节点 被线条附着时的 坐标
-        //     let bounds = node.bounds;
-        //     return {
-        //         x: bounds.x + bounds.width/2,
-        //         y: bounds.y - 1,
-        //     }
-        // },
-        handleEdgeDey() {
-            console.log('线条销毁', this.id)
+        edgeSuccess(comp) {
+            let data = this.$parent.data;
+            if(!Array.isArray(data.sourceConnections)) data.sourceConnections=[];
+
+            data.sourceConnections.push({
+                sourceTerminal: this.index,
+                targetId: comp.data.id,
+                targetTerminal: 'N',
+            })
+            this.handleEdgeSucc({
+                comp: comp,
+                output: this.output,
+            })
         },
-        handleEdgeSucc() {
-            console.log('线条连接成功', this.id)
+        edgeDestroy() {
+            let data = this.$parent.data;
+            // 删除sourceConnections中的对应数据
+            for(let i=0;i<data.sourceConnections.length;i++) {
+                let conn = data.sourceConnections[i];
+                if(conn.sourceTerminal == this.index) {
+                    data.sourceConnections.splice(i, 1);
+                    break;
+                }
+            }
+
+            this.handleEdgeDey({
+                output: this.output,
+            })
         }
     },
     computed: {

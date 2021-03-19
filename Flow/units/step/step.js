@@ -5,7 +5,7 @@ let img = new Image()
 img.src = '../Flow/units/chilun.png';
 
 export default {
-    template: '<anchor v-for="(item, index) in data.output" :output="item" :index="index"></anchor>',
+    template: '<anchor v-for="(item, index) in data.output" :output="item" :index="index" @handleEdgeSucc="handleEdgeSucc" @handleEdgeDey="handleEdgeDey"></anchor>',
     name: 'step',
     mixin: 'root',
     data: {
@@ -78,9 +78,48 @@ export default {
     hover(isHover) {
         this.isHover = isHover;
     },
+    dblclick(event) {
+        console.log('step 双击')
+    },
     methods: {
-        hasEdge() {
-            return this.data.sourceConnections || [];
+        // 线条销毁/连接失败,数据处理
+        handleEdgeDey(obj) {
+            let { output } = obj;
+            let outputs = this.data.output
+            let index = outputs.indexOf(output);
+            if(index === 0) {
+                this.data.false = 0;
+            } else if(index === 1) {
+                this.data.true = 0;
+            } else if(index > 1) {
+                if(Array.isArray(this.data.customOuts)) {
+                    for(let i=0;i<this.data.customOuts.length;i++) {
+                        // 判断是否以index标识符开头的记录，删除
+                        if(this.data.customOuts[i].startsWith(`${index}_`)) {
+                            this.data.customOuts.splice(index, 1);
+                            break;
+                        }
+                    }
+                }
+            }
+            
+        },
+        // 线条连接成功，数据处理
+        handleEdgeSucc(obj) {
+            let { comp, output } = obj;
+            let outputs = this.data.output
+            let index = outputs.indexOf(output);
+            if(index === 0) {
+                this.data.false = comp.data.id;
+            } else if(index === 1) {
+                this.data.true = comp.data.id;
+            } else if(index > 1) {
+                if(Array.isArray(this.data.customOuts)) {
+                    this.data.customOuts.push(`${index}_${comp.data.id}`);
+                }else {
+                    this.data.customOuts = [`${index}_${comp.data.id}`];
+                }
+            }
         },
         drawShape(color) {
             let bounds = this.bounds;
@@ -103,22 +142,6 @@ export default {
                 height: this.data.bounds.height + this.imgHeight,
             };
         },
-        // despObj: function() {
-        //     let data = this.data;
-        //     let desp = data.desp;
-        //     let ctx = this.ctx;
-        //     let textLength = parseInt(ctx.measureText(desp).width);
-            
-        //     if(textLength>200) {
-        //         desp = desp.substring(0, 200/textLength*desp.length-3)+'...';
-        //         data.bounds.width = 250;
-        //     }else if (textLength>120) {
-        //         data.bounds.width = 250;
-        //     }else{
-        //         data.bounds.width = 170;
-        //     }
-        //     return desp
-        // }
         
     },
     watch: {

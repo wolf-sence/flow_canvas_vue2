@@ -20,20 +20,13 @@ export default {
         isSelect: false,
     },
     draw() {
-        this.ctx.beginPath();
-        this.drawShape();
-        if (this.isSelect || this.isHover) {
-            this.createPath();
-            let ctx = this.ctx,
-                output = this.$parent.output;
-            ctx.lineWidth = 8;
-            ctx.strokeStyle = 'rgba(138, 209, 255, 0.3)';
-            ctx.stroke();
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = output.color;
-            ctx.stroke();
+        this.drawEdge();
+        if (this.isSelect) {
+            this.drawShape();
         }
-        this.ctx.closePath();
+        if (this.isHover) {
+            this.drawShape();
+        }
     },
     isHere(x, y) {
         let ctx = this.ctx;
@@ -51,7 +44,8 @@ export default {
     hover(val) {
         this.isHover = val
     },
-    selected(val) {
+    click(val) {
+        console.log('改变edgeselected值')
         this.isSelect = val;
     },
     computed: {
@@ -69,7 +63,8 @@ export default {
         }
     },
     beforeDestroy() {
-        // this.$parent.hasEdge = false;
+        this.handleEdgeDey2();
+        this.$parent.hasEdge = false;
     },
     methods: { 
         handleDragStart(x, y) {
@@ -105,11 +100,25 @@ export default {
                 this.$destroy();
                 return false;
             }else {
-                comp.dependEdge(this.id); // 通知目标节点记录此线条接入
+                this.handleEdgeSucc2(comp); // 线条接入，更新父节点数据
+                comp.dependEdge(this.$uid); // 通知目标节点记录此线条接入
                 return true;
             }
         },
         drawShape() {
+            this.ctx.beginPath();
+            this.createPath();
+            let ctx = this.ctx,
+                output = this.$parent.output;
+            ctx.lineWidth = 8;
+            ctx.strokeStyle = 'rgba(138, 209, 255, 0.3)';
+            ctx.stroke();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = output.color;
+            ctx.stroke();
+            this.ctx.closePath();
+        },
+        drawEdge() {
             this.createPath();
             let ctx = this.ctx,
                 output = this.$parent.output;

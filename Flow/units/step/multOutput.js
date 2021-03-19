@@ -5,5 +5,8 @@ export default {
     mixin: 'step',
     data: {
         mainColor: '#07B6B5',
-    }
+    },
+    dblclick(event) {
+        console.log('多出口 双击')
+    },
 }

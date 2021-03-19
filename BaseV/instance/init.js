@@ -123,7 +123,7 @@ function initProps(vm) {
 
     for(let i=0; i<keys.length; i++) {
         if(typeof props[keys[i]] === 'function') {
-            vm[keys[i]] = () => {
+            vm[keys[i]] = function() {
                 props[keys[i]].apply(parent, arguments);
             };
         }else {

@@ -30,7 +30,7 @@ export function _parseVFor(vm, attr) {
     for(;obj[argArr[1]]<parentValue.length;obj[argArr[1]]++) {
         obj[argArr[0]] = parentValue[obj[argArr[1]]];
 
-        let propsData = mountProps(obj, attr);
+        let propsData = mountProps(obj, attr, vm);
         root.createNode({
             type: attr.tag,
             parent: vm,
@@ -54,7 +54,7 @@ export function _parseVIf(vm, attr) {
     let bool = new Function('vm', `with(vm) {return vm.${valuePath}}`).call(vm, vm);
 
     if(bool) {
-        let propsData = mountProps(vm, attr);
+        let propsData = mountProps(vm, attr, vm);
         root.createNode({
             type: attr.tag,
             parent: vm,
@@ -74,14 +74,14 @@ export function _parse(vm, attr) {
         }
     }
     
-    let propsData = mountProps(vm, attr);
+    let propsData = mountProps(vm, attr, vm);
     root.createNode({
         type: attr.tag,
         parent: vm,
         ...propsData,
     })
 }
-function mountProps(vm, attr) {
+function mountProps(obj, attr, vm) {
     console.log('-----重新生成子节点----');
     let propsMap = attr.attrMap;
     let ret = {}
@@ -90,7 +90,7 @@ function mountProps(vm, attr) {
             let k = key;
             if(key.startsWith(':')) {
                 k = key.slice(1);
-                ret[k] = new Function('vm', `with(vm) {return vm.${propsMap[key]}}`).call(vm, vm);
+                ret[k] = new Function('obj', `with(obj) {return obj.${propsMap[key]}}`).call(obj, obj);
             } else if(key.startsWith('@')) {
                 k = key.slice(1);
                 ret[k] = new Function('vm', `with(vm) {return vm.${propsMap[key]}}`).call(vm, vm);

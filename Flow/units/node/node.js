@@ -1,7 +1,7 @@
 // 普通 node节点
 
 export default {
-    template: `<anchor v-for="(item, index) in data.output" :output="item" :index="index"></anchor>
+    template: `<anchor v-for="(item, index) in data.output" :output="item" :index="index" @handleEdgeSucc="handleEdgeSucc" @handleEdgeDey="handleEdgeDey"></anchor>
                 <risk v-if="data.risk"></risk>`,
     name: 'node',
     mixin: 'root',
@@ -52,11 +52,34 @@ export default {
         
     },
     methods: {
+        // 线条销毁/连接失败,数据处理
+        handleEdgeDey(obj) {
+            let { output } = obj;
+            let outputs = this.data.output
+            let index = outputs.indexOf(output);
+
+            if(!this.data.logic) return;
+            delete this.data.logic[`ret${index}`];
+            this.data.logic.total = Number(this.data.logic.total)-1;
+        },
+        // 线条连接成功，数据处理
+        handleEdgeSucc(obj) {
+            let { comp, output } = obj;
+            let outputs = this.data.output
+            let index = outputs.indexOf(output);
+
+            if(!this.data.logic) {
+                this.data.logic = {};
+            }
+            this.data.logic.total = this.data.sourceConnections.length;
+            this.data.logic[`ret${index}`] = comp.data.id;
+        },
         drawShape(color) {
             let bounds = this.bounds;
             let ctx = this.ctx;
             let radius = 4;
             ctx.beginPath();
+            ctx.lineWidth = 2;
             ctx.moveTo(bounds.x-4, bounds.y+2);
             ctx.lineTo(bounds.x+2, bounds.y-14);
             ctx.arcTo(bounds.x+4, bounds.y-18, bounds.x+8, bounds.y-18, radius);

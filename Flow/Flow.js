@@ -90,6 +90,6 @@ export default class FlowUnion {
         this.guideLine.clearGuideLine(event.comp);
     }
     handleDblclick(event) {
-        
+        console.log('双击事件')
     }
 }

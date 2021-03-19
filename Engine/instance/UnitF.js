@@ -7,7 +7,6 @@ import {
 } from '../../share/resolveTemp.js';
 import GridWrap from '../grid/grid.js';
 
-let id = 100;
 let Grid = GridWrap.getInstance();
 
 function initDrag(vm) {
@@ -48,22 +47,22 @@ function destroy() {
         this.$children[i].$destroy();
         i--;
     }
-    // 销毁过程不可能，如果需要可逆，可以在此处修改返回值，判断是否继续销毁
+    // 销毁过程不可逆，如果需要可逆，可以在此处修改返回值，判断是否继续销毁
     this.$beforeDestroy && this.$beforeDestroy();
     
     for(let i=0;i<uae.$children.length;i++) {
         let c = uae.$children[i];
-        if(this.id === c.id) {
+        if(this.$uid === c.$uid) {
             uae.$children.splice(i, 1);
-            delete uae._nodeMap[this.id];
+            delete uae._nodeMap[this.$uid];
             break;
         }
     }
     for(let i=0;i<parent.$children.length;i++) {
         let c = parent.$children[i];
-        if(this.id === c.id) {
+        if(this.$uid === c.$uid) {
             parent.$children.splice(i, 1);
-            delete uae._nodeMap[this.id];
+            delete uae._nodeMap[this.$uid];
             break;
         }
     }
@@ -162,7 +161,6 @@ class UnitF extends BaseV {
         vm.$uae = vm._uae = attr.uae;
         vm.$vIfItem = attr.vIfItem;
         vm.$vForItem = attr.vForItem;
-        vm.id = attr.id || id++;
 
         vm.$dragable = vm.dragable = 'dragable' in opts ? opts.dragable : true;
         vm.$cursor = opts.cursor || 'pointer'; // hover时的鼠标指针

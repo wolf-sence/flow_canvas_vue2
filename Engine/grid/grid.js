@@ -51,7 +51,7 @@ class Grid {
                 let comp = comps[i];
                 if (!comp.$block) return;
                 let bound = this.getRateBound(comp.bounds);
-                this.delete(bound.xs, bound.ys, bound.xe, bound.ye, comp.id);
+                this.delete(bound.xs, bound.ys, bound.xe, bound.ye, comp.$uid);
 
                 if(comp.$children && comp.$children.length>0 ) {
                     _delChildren(comp.$children);
@@ -74,7 +74,7 @@ class Grid {
                 let bound = this.getRateBound(comp.bounds);
                 if(bound.xs === bound.xe) bound.xe++;
                 if(bound.ys === bound.ye) bound.ye++;
-                this.create(bound.xs, bound.ys, bound.xe, bound.ye, comp.id);
+                this.create(bound.xs, bound.ys, bound.xe, bound.ye, comp.$uid);
 
                 if(comp.$children && comp.$children.length>0) {
                     _updateChildren(comp.$children);
@@ -93,7 +93,7 @@ class Grid {
             let node = nodeList[i];
             let bound = this.getRateBound(node.bounds);
 
-            this.create(bound.xs, bound.ys, bound.xe, bound.ye, node.id);
+            this.create(bound.xs, bound.ys, bound.xe, bound.ye, node.$uid);
         }
     }
     // 删除节点
