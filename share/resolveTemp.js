@@ -69,6 +69,7 @@ export function _parse(vm, attr) {
     let root = vm.$uae;
     
     for(let i=children.length-1; i>=0; i--) {
+        console.log('进入转换普通子节点', children);
         if(!children[i].$vIfItem && !children[i].$vForItem) {
             children.splice(i, 1);
         }

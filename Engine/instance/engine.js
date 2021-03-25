@@ -2,6 +2,9 @@ import BaseV from '../../BaseV/instance/index.js';
 import UnitF from './UnitF.js';
 import { errorTip, deepClone } from '../share/share.js';
 import GridWrap from '../grid/grid.js';
+import FlowData from './FlowData.js';
+import Drill from '../drill/Drill.js';
+import Historys from '../history/History.js';
 import RenderSequence from '../render/sequence.js';
 
 let Grid = GridWrap.getInstance();
@@ -29,10 +32,12 @@ export default class Engine extends BaseV{
         this.dockeydown = null;
         this._init(def);
 
-        this.$mounted && this.$mounted();
-        
         this.Grid = Grid;
-        
+        this.flowData = FlowData.getInstance();
+        this.drill = new Drill(this);
+        this.historys = new Historys(this);
+
+        this.$mounted && this.$mounted();
     }
     // 注册节点类型 (根据mixinName父类型创建子类型)
     registerComp(component) {
@@ -68,8 +73,20 @@ export default class Engine extends BaseV{
         ret.props = [].concat((mixin || {}).props || []).concat(comp.props || []);
         return ret;
     }
+    loopNodeList(list) {
+        this.flowData.pushDatas(list);
+        for(let i=0; i<list.length; i++) {
+            let node = list[i];
+            
+            this.createNode({
+                type: node.nodeType,
+                data: node,
+            })
+        }
+    }
+    // isRecord: 是否将此次创建记录在历史记录
     // 根据类型创建节点
-    createNode(def, isChildren = true) {
+    createNode(def, isRecord = false) {
         let { 
             type,
             parent,
@@ -92,9 +109,10 @@ export default class Engine extends BaseV{
 
         let children = parent ? parent.$children : this.$children;
         children.push(node);
-
         this._nodeMap[node.$uid] = node;
-
+        if(isRecord) {
+            this.historys.recordCreate(data);
+        }
         return node;
         // Grid.handleCreate(node);
     }
@@ -123,6 +141,7 @@ export default class Engine extends BaseV{
     }
     _bind() {
         let canvas = this.$canvas;
+        let copyNodeIds; // 复制节点数据
         canvas.addEventListener('click', e => {
             let x = e.offsetX,
                 y = e.offsetY,
@@ -200,6 +219,7 @@ export default class Engine extends BaseV{
                             this.selecteds.forEach(item => {
                                 this._nodeMap[item].$dragstart && this._nodeMap[item].$dragstart(x2, y2); // 鼠标的定位
                             })
+                            this.historys.recordMove(this.selecteds);
                         }
                         let event = {
                             e,
@@ -305,10 +325,45 @@ export default class Engine extends BaseV{
             });
         })
         document.addEventListener('keydown', this.dockeydown = e => {
-            this.$emit('keydown', e);
-
-            if(e.keyCode === 46) {
+            // this.$emit('keydown', e);
+            // if(this.isReadOnly()) {
+            //     return;
+            // } else 
+            if (e.keyCode == 90 && (navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey)) {
+                // ctrl + z
+                this.historys.restore();
+            }else if (e.keyCode == 89 && (navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey)) {
+                // ctrl + y
+                // this.historys.forward();
+            } else if (e.keyCode == 46){
+                // delete
                 this.deleteSelected();
+            } else if(e.keyCode == 65 && (navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey)) {
+                // ctrl + a
+                let ids = [];
+                this.$children.forEach(item => {
+                    if(item.$block) ids.push(item.$uid);
+                });
+                this.clearSelected(ids)
+                e.preventDefault();
+            } else if (e.keyCode == 67 && (navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey)) {
+                // ctrl + c
+                copyNodeIds = this.selecteds;
+                console.log('copyNodeids', copyNodeIds);
+            } else if (e.keyCode == 86 && (navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey)) {
+                // ctrl + v
+                if(copyNodeIds) {
+                    let list = [];
+                    copyNodeIds.forEach(id => {
+                        let node = this._nodeMap[id];
+                        let data = deepClone(node.data);
+                        data.bounds.x += 20;
+                        data.bounds.x += 20;
+                        list.push(data);
+                    })
+                    this.loopNodeList(list);
+                }
+                copyNodeIds = null;
             }
         })
     }
@@ -348,14 +403,16 @@ export default class Engine extends BaseV{
         } else { // 非block元素,不存在于障碍物地图,使用老方法判断
             let ex = x*this.ratio,
                 ey = y*this.ratio;
-
-            return this.getEdgeByPoint(ex, ey); // 暂时只对edge处理
+            let edge = this.getEdgeByPoint(ex, ey);
+            // console.log('this.getEdgeByPoint(ex, ey);', edge)
+            return edge // 暂时只对edge处理
         }
     }
     getEdgeByPoint(x, y) { // 特例：通过point获取edge或其子元素
         let _findEdge = function (childrens) {
             for(let i=0,item; i<childrens.length,item=childrens[i]; i++) {
-                if(item.$children) {
+                if(item.$children && item.$block) {
+                    // 
                     let t = _findEdge(x, y);
                     if(t) {
                         return t;
@@ -366,17 +423,19 @@ export default class Engine extends BaseV{
                 }
             }
         }
-
+        // return _findEdge(this.$children);
         for(let key in this._nodeMap) {
             let item = this._nodeMap[key];
             if(item.$type === 'edge' && !item.$block) {
-                if(item.$children && item.$children.length>0) {
-                    let t = _findEdge(item.$children);
-                    if(t) {
-                        return t;
-                    }
-                }
+                // if(item.$children && item.$children.length>0) {
+                //     let t = _findEdge(item.$children);
+                //     if(t) {
+                //         return t;
+                //     }
+                // }
+                // console.log('进入edge循环', item.$uid)
                 if(item.$isHere && item.$isHere(x, y)) {
+                    console.log('edge检测到', item.$uid, item.path, item.$isHere(x, y))
                     return item;
                 }
             }
@@ -392,8 +451,10 @@ export default class Engine extends BaseV{
         return childrens;
     }
     deleteSelected() {
+        this.historys.recordDelete(this.selecteds);
         this.selecteds.forEach(uid => {
             let node = this._nodeMap[uid];
+            this.flowData.delData(node.data);
             node.$destroy();
         })
         this.selecteds = [];
@@ -440,12 +501,12 @@ export default class Engine extends BaseV{
         this.sc = this.sc * rate;
     }
     translateX(tx) {
-        this.ctx.translate(tx - this.tx, 0);
+        this.ctx.translate(tx, 0);
         this.tx = tx;
         this.repaint();
     }
     translateY(ty) {
-        this.ctx.translate(0, ty - this.ty);
+        this.ctx.translate(0, ty);
         this.ty = ty;
         this.repaint();
     }

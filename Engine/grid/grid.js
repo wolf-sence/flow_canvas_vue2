@@ -43,6 +43,16 @@ class Grid {
         }
         return idList;
     }
+    // 一次性 循环所有节点的，生成障碍物地图
+    loopAllNodes(nodeList) {
+        this.clearGrid();
+        for(let i=0; i<nodeList.length; i++) {
+            let node = nodeList[i];
+            if(node.$block) {
+                this.handleUpdate(node);
+            }
+        }
+    }
     // 处理删除节点事件
     handleDelete(node) {
         let _delChildren = comps => {
@@ -84,16 +94,6 @@ class Grid {
         }
         if(node.$block) {
             _updateChildren([node]);
-        }
-    }
-    // 一次性 循环所有节点的，生成障碍物地图
-    loopAllNodes(nodeList) {
-        this.clearGrid();
-        for(let i=0; i<nodeList.length; i++) {
-            let node = nodeList[i];
-            let bound = this.getRateBound(node.bounds);
-
-            this.create(bound.xs, bound.ys, bound.xe, bound.ye, node.$uid);
         }
     }
     // 删除节点

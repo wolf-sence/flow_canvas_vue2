@@ -5,7 +5,6 @@ export default {
     mixin: 'root',
     cursor: 'pointer',
     dragable: true,
-    
     data: {
         lineWidth: 4,
         mainColor: '#27C59A',

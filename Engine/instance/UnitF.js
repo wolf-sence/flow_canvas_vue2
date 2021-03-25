@@ -38,7 +38,6 @@ function initDrag(vm) {
     }
 }
 function destroy() {
-    // 缺少清除响应式
     let parent = this.$parent;
     let uae = this.$uae;
     if(this.$block) Grid.handleDelete(this); // 删除障碍物地图
@@ -47,14 +46,15 @@ function destroy() {
         this.$children[i].$destroy();
         i--;
     }
-    // 销毁过程不可逆，如果需要可逆，可以在此处修改返回值，判断是否继续销毁
-    this.$beforeDestroy && this.$beforeDestroy();
-    
+    // 销毁过程可逆,如果返回true，则停止此组件的销毁
+    let val = this.$beforeDestroy && this.$beforeDestroy();
+    if(val === false) return;
+    // console.log('uae,',uae, parent);
+    delete uae._nodeMap[this.$uid];
     for(let i=0;i<uae.$children.length;i++) {
         let c = uae.$children[i];
         if(this.$uid === c.$uid) {
             uae.$children.splice(i, 1);
-            delete uae._nodeMap[this.$uid];
             break;
         }
     }
@@ -62,7 +62,6 @@ function destroy() {
         let c = parent.$children[i];
         if(this.$uid === c.$uid) {
             parent.$children.splice(i, 1);
-            delete uae._nodeMap[this.$uid];
             break;
         }
     }
@@ -86,7 +85,7 @@ function destroy() {
 function _dragStart(x, y) {
     this._distance.dx = x - this.bounds.x;
     this._distance.dy = y - this.bounds.y;
-    this.recordDragStart(this);
+    this.recordDragStart();
 }
 function _drag(x, y) {
     let fx = x - this._distance.dx;
@@ -108,7 +107,7 @@ function _dragend(x, y) {
         this.data.bounds.y = fy
     }
 
-    this.recordDragEnd(this);
+    this.recordDragEnd();
 }
 
 function initRender(vm) {
@@ -157,8 +156,6 @@ class UnitF extends BaseV {
 
         const vm = this;
         const opts = vm.$options;
-        vm.$ctx = vm.ctx = attr.ctx;
-        vm.$uae = vm._uae = attr.uae;
         vm.$vIfItem = attr.vIfItem;
         vm.$vForItem = attr.vForItem;
 
@@ -181,8 +178,6 @@ class UnitF extends BaseV {
         
     }
     _init(vm) {
-        initChildren(vm);
-
         initRender(vm);
         
         initDrag(vm);
@@ -190,13 +185,15 @@ class UnitF extends BaseV {
         vm.$destroy = () => {
             destroy.call(vm);
         };
+
+        initChildren(vm);
     }
     
-    recordDragStart(comp) {
-        Grid.handleDelete(comp);
+    recordDragStart() {
+        Grid.handleDelete(this);
     }
-    recordDragEnd(comp) {
-        Grid.handleUpdate(comp);
+    recordDragEnd() {
+        Grid.handleUpdate(this);
     }
     isBorderX(x) {
         // 在引入高分辨率后，canvas.width 宽度不是可视宽度，

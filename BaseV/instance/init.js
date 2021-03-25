@@ -25,6 +25,8 @@ export function initMixin(FCV) {
         vm.$uid = uid++;
         vm.$options = attr.options;
         vm.$type = attr.type;
+        vm.$ctx = vm.ctx = attr.ctx;
+        vm.$uae = vm._uae = attr.uae;
         vm.$parent = attr.parent;
         vm.$children = this.children = [];
         vm._watchers = []; // 为垃圾回收机制服务

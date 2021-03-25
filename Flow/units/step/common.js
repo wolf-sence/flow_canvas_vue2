@@ -3,8 +3,8 @@
 export default {
     name: 'common',
     mixin: 'step',
-    dblclick(event) {
-        console.log('common 双击')
+    dblclick(x, y) {
+        this.$uae.drill.drillUae(this);
     },
     data: {
         mainColor: '#374E71',

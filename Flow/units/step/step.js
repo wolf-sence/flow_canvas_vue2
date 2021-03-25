@@ -1,6 +1,3 @@
-// import eye from './eyes.jpg';
-// let img = document.createElement('img');
-// img
 let img = new Image()
 img.src = '../Flow/units/chilun.png';
 

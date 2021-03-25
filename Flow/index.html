@@ -8,9 +8,15 @@
 </head>
 
 <body>
+    <script>
+        function callBackFunc() {
+            uae.drill.popUae();
+        }
+    </script>
     <div id ="app">
         <canvas width="1200" height="500" id="canvas" class="canvas_wrapper"></canvas>
     </div>
+    <button onclick="callBackFunc()">callBackFunc</button>
     <!-- <script>
         console.log('enter index')
     </script> -->
@@ -36,7 +42,8 @@
                     color: "#f12626",
                     description: "失败锚点"
                 },
-            ]
+            ],
+            sourceConnections: [],
         }
 
         let root2 = {
@@ -46,8 +53,45 @@
             bounds: {
                 width: 160,
                 height: 25,
-                x: 400,
-                y: 200,
+                x: 600,
+                y: 400,
+            },
+            implementation: {
+                node: [
+                    {
+                        nodeType: 'start',
+                        desp: 'start',
+                        id: '1',
+                        bounds: {
+                            width: 55,
+                            height: 55,
+                            x: 350,
+                            y: 260,
+                        },
+                        output: [
+                            {
+                                name: "成功",
+                                value: "1",
+                                color: "#21c562",
+                            },
+                        ],
+                        sourceConnections: [{
+                            sourceTerminal: 1,
+                            targetId: "6",
+                            targetTerminal: "N",
+                        }],
+                    },{
+                        nodeType: 'diyEnd',
+                        desp: 'diyEnd',
+                        id: '6',
+                        bounds: {
+                            width: 55,
+                            height: 55,
+                            x: 560,
+                            y: 160,
+                        },
+                    }
+                ],
             },
             output: [
                 {
@@ -66,7 +110,8 @@
                     color: "#21c562",
                     description: "成功出口锚点"
                 },
-            ]
+            ],
+            sourceConnections: [],
         }
         let root3 = {
             nodeType: 'multOutput',
@@ -95,7 +140,8 @@
                     color: "#21c562",
                     description: "成功出口锚点"
                 },
-            ]
+            ],
+            sourceConnections: [],
         }
         let root4 = {
             nodeType: 'normalEnd',
@@ -124,7 +170,8 @@
                     value: "1",
                     color: "#21c562",
                 },
-            ]
+            ],
+            sourceConnections: [],
         }
         let root6 = {
             nodeType: 'diyEnd',
@@ -152,7 +199,8 @@
                     value: "1",
                     color: "#21c562",
                 },
-            ]
+            ],
+            sourceConnections: [],
         }
         let root8 = {
             nodeType: 'node',
@@ -181,7 +229,12 @@
                     color: "#21c562",
                     description: "成功出口锚点"
                 },
-            ]
+            ],
+            sourceConnections: [{
+                sourceTerminal: 1,
+                targetId: "7",
+                targetTerminal: "N",
+            }],
         }
         let root9 = {
             nodeType: 'defaultException',
@@ -211,10 +264,11 @@
                     color: "#21c562",
                     description: "成功出口锚点"
                 },
-            ]
+            ],
+            sourceConnections: [],
         }
-        //  root2, root3, root4, root5, root6, root7, root8, 
-        let arr = [root1,root2, root3, root4, root5, root6, root7, root8,root9];
+        //  root1, root2, root3, root4, root5, root6, root7, root8, 
+        let arr = [root7, root8];
 
         var canvas = document.getElementById('canvas');
         let context = canvas.getContext("2d");
@@ -238,13 +292,17 @@
         context.scale(ratio, ratio)
 
         let flow = new FlowUnion(canvas, ratio);
-        window.flow = flow.uae;
+        window.uae = flow.uae;
+        window.flow = flow;
+        console.log('windows.uar', uae);
         flow.loopNodeList(arr);
 
         flow.uae.$on('contextmenu', e => {
             console.log('-------右键菜单----');
         })
 
+
+        
     </script>
 </body>
 <style>

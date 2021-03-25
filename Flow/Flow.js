@@ -2,6 +2,7 @@ import Engine from '../Engine/instance/Engine.js';
 import units from './units/index.js';
 import uae from './uae.js';
 
+
 export default class FlowUnion {
     constructor(canvas, ratio=1) {
         uae.canvas = canvas;
@@ -15,13 +16,12 @@ export default class FlowUnion {
         this._init();
     }
     loopNodeList(nodeList) {
-        for(let i=0; i<nodeList.length; i++) {
-            let node = nodeList[i]
-            this.uae.createNode({
-                type: node.nodeType,
-                data: node,
-            })
-        }
+        this.uae.loopNodeList(nodeList);
+    }
+    getNodeList() {
+        return this.uae.$children.filter(node => {
+            return node.$block;
+        });
     }
     _init() {
         this._initData();
@@ -63,6 +63,9 @@ export default class FlowUnion {
         this.uae.$on('dblclick', event => {
             this.handleDblclick(event);
         })
+        this.uae.$on('keydown', e => {
+            this.handleKeyDown(e);
+        })
     }
     /**
      * @param  {
@@ -90,6 +93,16 @@ export default class FlowUnion {
         this.guideLine.clearGuideLine(event.comp);
     }
     handleDblclick(event) {
-        console.log('双击事件')
+        // 双击下钻
+        let comp = event.comp;
+        if(comp && comp.$block) {
+            // this.drill.drillUae(comp);
+            // comp.$dblclick();
+        }
+    }
+    handleKeyDown(e) {
+        if(e.keyCode === 46) {
+            this.uae.deleteSelected();
+        }
     }
 }

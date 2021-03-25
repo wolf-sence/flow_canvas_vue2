@@ -2,7 +2,7 @@ export default {
     canvas: null,
     data: {
         isRenderBg: false, // 是否渲染 背景
-        selRect: null, // 拖动多选框
+        isDrill: false, // 是否处于下钻状态
     },
     created() {
 
@@ -21,5 +21,5 @@ export default {
             this.isRenderBg = val;
             this.repaint();
         }
-    }
+    },
 }
