@@ -403,39 +403,14 @@ export default class Engine extends BaseV{
         } else { // 非block元素,不存在于障碍物地图,使用老方法判断
             let ex = x*this.ratio,
                 ey = y*this.ratio;
-            let edge = this.getEdgeByPoint(ex, ey);
-            // console.log('this.getEdgeByPoint(ex, ey);', edge)
-            return edge // 暂时只对edge处理
+            return this.getEdgeByPoint(ex, ey); // 暂时只对edge处理
         }
     }
     getEdgeByPoint(x, y) { // 特例：通过point获取edge或其子元素
-        let _findEdge = function (childrens) {
-            for(let i=0,item; i<childrens.length,item=childrens[i]; i++) {
-                if(item.$children && item.$block) {
-                    // 
-                    let t = _findEdge(x, y);
-                    if(t) {
-                        return t;
-                    }
-                }
-                if(item.$isHere && item.$isHere(x, y)) {
-                    return item;
-                }
-            }
-        }
-        // return _findEdge(this.$children);
         for(let key in this._nodeMap) {
             let item = this._nodeMap[key];
             if(item.$type === 'edge' && !item.$block) {
-                // if(item.$children && item.$children.length>0) {
-                //     let t = _findEdge(item.$children);
-                //     if(t) {
-                //         return t;
-                //     }
-                // }
-                // console.log('进入edge循环', item.$uid)
                 if(item.$isHere && item.$isHere(x, y)) {
-                    console.log('edge检测到', item.$uid, item.path, item.$isHere(x, y))
                     return item;
                 }
             }

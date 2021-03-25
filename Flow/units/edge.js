@@ -1,7 +1,6 @@
 export default {
     // template: '<dragDot></dragDot>',
     name: 'edge',
-    // props: ['hasEdge'], // start: 锚点anchor
     block: false,
     link: false,
     dragable: false,
@@ -45,7 +44,7 @@ export default {
         this.isHover = val
     },
     click(val) {
-        console.log('改变edgeselected值')
+        console.log('click' , val);
         this.isSelect = val;
     },
     computed: {
@@ -65,8 +64,9 @@ export default {
     beforeDestroy() {
         this.handleEdgeDey2();
         this.$parent.hasEdge = false;
+        return false;
     },
-    methods: { 
+    methods: {
         handleDragStart(x, y) {
             this.start = this.$parent.bounds;
             this.endPoints.x = x;
@@ -119,9 +119,11 @@ export default {
             this.ctx.closePath();
         },
         drawEdge() {
-            this.createPath();
             let ctx = this.ctx,
                 output = this.$parent.output;
+
+            ctx.beginPath();
+            this.createPath();
             ctx.lineWidth = 2;
             ctx.strokeStyle = output.color;
             ctx.stroke();

@@ -19,7 +19,7 @@ export default {
         ctx.fillStyle = 'rgb(232, 247, 249)';
         ctx.fill();
         
-        ctx.strokeStyle = this.output.status == 'notExecute' ? '#C0C4CC' : this.output.color;
+        ctx.strokeStyle = this.output.color;
         ctx.stroke();
         ctx.closePath();
     },
@@ -45,6 +45,18 @@ export default {
         }
     },
     mounted() {
+        // if(this.connection) {
+        //     let id = this.connection.targetId;
+        //     let end = this.$uae.flowData.getDataById(id); // 目标节点的数据data
+
+        //     this.endPoints = end.bounds;
+        //     for(let key in this.$uae._nodeMap) {
+        //         let node = this.$uae._nodeMap[key];
+        //         if(node.$block && node.data === end) {
+        //             node.dependEdge(this.$children[0].$uid);
+        //         }
+        //     }
+        // }
         let conns = this.$parent.hasEdge && this.$parent.hasEdge() || [];
         for(let i=0;i<conns.length;i++) {
             // if(conns[i].sourceTerminal == this.index) 
@@ -68,20 +80,31 @@ export default {
         edgeDestroy() {
             let data = this.$parent.data;
             // 删除sourceConnections中的对应数据
-            for(let i=0;i<data.sourceConnections.length;i++) {
-                let conn = data.sourceConnections[i];
-                if(conn.sourceTerminal == this.index) {
-                    data.sourceConnections.splice(i, 1);
-                    break;
+            if(data.sourceConnections && data.sourceConnections.length>0)  {
+                for(let i=0;i<data.sourceConnections.length;i++) {
+                    let conn = data.sourceConnections[i];
+                    if(conn.sourceTerminal == this.index) {
+                        data.sourceConnections.splice(i, 1);
+                        break;
+                    }
                 }
             }
-
             this.handleEdgeDey({
                 output: this.output,
             })
         }
     },
     computed: {
+        'connection': function() {
+            let pdata = this.$parent.data;
+            let conns = pdata.sourceConnections || [];
+            for(let i=0;i<conns.length;i++) {
+                if(conns[i].sourceTerminal == this.output.value)  {
+                    return conns[i]
+                }
+            }
+            return;
+        },
         'bounds': function() {
             let data = this.$parent.data;
             // let pbounds = data.bounds;
@@ -99,9 +122,9 @@ export default {
             }
         },
     },
-    watch: {
-        hasEdge(newVal, oldVal) {
-            console.log('enter watch hasEdge', newVal);
-        }
-    }
+    // watch: {
+    //     hasEdge(newVal, oldVal) {
+    //         console.log('enter watch hasEdge', newVal);
+    //     }
+    // }
 }
