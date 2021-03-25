@@ -83,22 +83,25 @@ export default class History {
             type: 'move',
             list: [],
         };
-        this.historyLow++;
         for(let i=0; i<ids.length; i++){
             let node = this.uae._nodeMap[ids[i]];
             // 为了垃圾回收机制，此处不能直接存储node的引用，
             // 存储id可能会出现该节点被删除后新建，id前后不同，
             // 所以此处只能存储data引用
-            history.list.push({
-                data: node.data,
-                origin: {
-                    x: node.bounds.x,
-                    y: node.bounds.y,
-                }
-            });
+            if(node.$block) { // 非block元素 将不会被记录在引用
+                history.list.push({
+                    data: node.data,
+                    origin: {
+                        x: node.bounds.x,
+                        y: node.bounds.y,
+                    }
+                });
+            }
         }
-        this.historys[this.historyLow] = history;
-        this.historyHigh = this.historyLow;
+        if(history.list.length>0) {
+            this.historys[++this.historyLow] = history;
+            this.historyHigh = this.historyLow;
+        }
     }
     // 复原新建
     restoreCreate(data) {

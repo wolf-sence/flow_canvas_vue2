@@ -150,7 +150,6 @@ export default class Engine extends BaseV{
             let comp = this.getCompByPoint(x, y, cx, cy);
             // if (comp) {
             //     this.clearSelected([comp.$uid])
-
             // }else {
             //     this.clearSelected([])
             // }
@@ -219,7 +218,7 @@ export default class Engine extends BaseV{
                             this.selecteds.forEach(item => {
                                 this._nodeMap[item].$dragstart && this._nodeMap[item].$dragstart(x2, y2); // 鼠标的定位
                             })
-                            this.historys.recordMove(this.selecteds);
+                            if(this.selecteds.length>0) this.historys.recordMove(this.selecteds);
                         }
                         let event = {
                             e,
@@ -287,15 +286,15 @@ export default class Engine extends BaseV{
             canvas.addEventListener('mouseup', mouseup);
             canvas.addEventListener('mouseleave', mouseup);
         })
-        canvas.addEventListener('mouseup', e => {
-            let x1 = this._toCanvasX(e.offsetX),
-                y1 = this._toCanvasY(e.offsetY),
-                comp = this.getCompByPoint(e.offsetX, e.offsetY, x1, y1, false);
+        // canvas.addEventListener('mouseup', e => {
+        //     let x1 = this._toCanvasX(e.offsetX),
+        //         y1 = this._toCanvasY(e.offsetY),
+        //         comp = this.getCompByPoint(e.offsetX, e.offsetY, x1, y1, false);
 
-            if(comp) {
-                comp.$mouseup && comp.$mouseup();
-            }
-        })
+        //     if(comp) {
+        //         comp.$mouseup && comp.$mouseup();
+        //     }
+        // })
         canvas.addEventListener('mouseenter', e => {
             this.$emit('mouseenter', {
                 e,
@@ -407,10 +406,31 @@ export default class Engine extends BaseV{
         }
     }
     getEdgeByPoint(x, y) { // 特例：通过point获取edge或其子元素
+        let _findEdge = function (childrens) {
+            for(let i=0,item; i<childrens.length,item=childrens[i]; i++) {
+                if(item.$children && item.$block) {
+                    let t = _findEdge(x, y);
+                    if(t) {
+                        return t;
+                    }
+                }
+                if(item.$isHere && item.$isHere(x, y)) {
+                    return item;
+                }
+            }
+        }
+
         for(let key in this._nodeMap) {
             let item = this._nodeMap[key];
-            if(item.$type === 'edge' && !item.$block) {
-                if(item.$isHere && item.$isHere(x, y)) {
+            if(!item.$block && item.$isHere) {
+                if(item.$children && item.$children.length>0) {
+                    let t = _findEdge(item.$children);
+                    if(t) {
+                        return t;
+                    }
+                }
+
+                if(item.$isHere(x, y)) {
                     return item;
                 }
             }
@@ -459,9 +479,9 @@ export default class Engine extends BaseV{
         })
         for(let key in this._nodeMap) {
             let node = this._nodeMap[key];
-            if(node.$type === 'edge' && ids.indexOf(node.$uid) === -1) {
+            if(!node.$block && node.$isHere && ids.indexOf(node.$uid) === -1) {
                 node.$click && node.$click(false);
-            }else if(node.$type === 'edge') {
+            }else if(!node.$block && node.$isHere) {
                 node.$click && node.$click(true);
             }
         }

@@ -5,20 +5,68 @@ export default {
     link: false,
     data: {
         isHover: false,
-        endPoints: null,
+        isSelect: false,
     },
     draw() {
         let ctx = this.ctx;
-        ctx.beginPath();
-        this.createPath();
         ctx.lineWidth = 1;
-        ctx.fillStyle = '#5688FA';
-        ctx.fill();
+        this.createPath();
+        if(this.$parent.isSelect) {
+            this.drawColor();
+        }
+        if(this.isSelect) {
+            this.drawColor();
+        }
         ctx.closePath();
+    },
+    dragstart(x, y) {
+        this.$parent.handleDragStart(x, y, true);
+    },
+    drag(x, y) {
+        this.$parent.handleDrag(x, y);
+    },
+    dragend(x, y) {
+        this.$parent.handleDotDragEnd(x, y);
+    },
+
+    methods: {
+        createPath() {
+            let ctx = this.ctx;
+            ctx.beginPath();
+
+            if(!this.bounds) return;
+
+            ctx.rect(this.bounds.x-4, this.bounds.y-8, this.bounds.width, this.bounds.height)
+        },
+        drawColor() {
+            let ctx = this.ctx;
+            ctx.fillStyle = '#fff';
+            ctx.fill();
+            ctx.strokeStyle = 'black'
+            ctx.stroke();
+        }
+    },
+    computed: {
+        'bounds': function() {
+            let path = this.$parent.path;
+            if(!path) return null;
+            let endPath = path.slice(-1)[0];
+            let width = 8, height = 8;
+            let x = endPath.x;
+            let y = endPath.y;
+            return {
+                x,
+                y,
+                width,
+                height,
+            }
+        },
     },
     // 注意 canvas 原生isPointInPath无法检测fillRect、strokeRect
     isHere(x, y) {
         this.ctx.beginPath();
+        if(!this.bounds) return false;
+        // console.log('此时 dragdot bounds 非空，在判断')
         this.createPath();
         for(let i=-1;i<=3;i++) { // 扩大选择范围
             if(this.ctx.isPointInPath(x+i, y)) {
@@ -29,49 +77,11 @@ export default {
             }
         }
         return false;
-
     },
-    dragstart(x, y) {
-        this.endPoints = this.$parent.end
+    hover(val) {
+        this.isHover = val
     },
-    drag(x, y) {
-        let comp = this.$uae.getCompByPoint(x, y, x, y);
-        if(comp && comp.$link) {
-            this.endPoints = comp.bounds;
-        } else {
-            this.endPoints.x = x;
-            this.endPoints.y = y;
-            this.endPoints.width = null;
-            this.endPoints.height = null;
-        }
-    },
-    dragend(x, y) {
-        let comp = this.$uae.getCompByPoint(x, y, x, y);
-        if(!comp || !comp.$link) {
-            // 没有/不允许 附着至节点时，取消线条连接
-            this.hasEdge = false;
-            this.endPoints.width = null;
-            this.endPoints.height = null;
-        }
-    },
-    methods: {
-        createPath() {
-            this.ctx.arc(this.bounds.x+this.bounds.width/2, this.bounds.y, this.bounds.width, 0, 2 * Math.PI);
-        }
-    },
-    computed: {
-        'bounds': function() {
-            let path = this.$parent.path;
-            let endPath = path.slice(-1)[0];
-            let width = 4, height = 4;
-            let x = endPath.x - width/2;
-            let y = endPath.y - height;
-            return {
-                x,
-                y,
-                width,
-                height,
-            }
-        },
+    click(val) {
+        this.isSelect = val;
     },
 }

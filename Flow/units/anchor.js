@@ -24,9 +24,6 @@ export default {
         ctx.closePath();
     },
     dragstart(x, y) {
-        // this.hasEdge = false;
-        // this.hasEdge = true;
-        console.log('this.hasEdge', this.hasEdge)
         if(!this.hasEdge) {
             this.hasEdge = true;
             this.edge = this.$children[0];
@@ -45,22 +42,21 @@ export default {
         }
     },
     mounted() {
-        // if(this.connection) {
-        //     let id = this.connection.targetId;
-        //     let end = this.$uae.flowData.getDataById(id); // 目标节点的数据data
-
-        //     this.endPoints = end.bounds;
-        //     for(let key in this.$uae._nodeMap) {
-        //         let node = this.$uae._nodeMap[key];
-        //         if(node.$block && node.data === end) {
-        //             node.dependEdge(this.$children[0].$uid);
-        //         }
-        //     }
-        // }
-        let conns = this.$parent.hasEdge && this.$parent.hasEdge() || [];
-        for(let i=0;i<conns.length;i++) {
-            // if(conns[i].sourceTerminal == this.index) 
+        // 如果该锚点默认存在连线，则在此处初始化
+        if(this.connection) {
+            let id = this.connection.targetId;
+            let end = this.$uae.flowData.getDataById(id); // 目标节点的数据data
+            this.hasEdge = true;
+            this.endPoints = end.bounds;
+            for(let key in this.$uae._nodeMap) {
+                let node = this.$uae._nodeMap[key];
+                if(node.$block && node.data === end) {
+                    this.$children[0].endPoints = node.bounds;
+                    node.dependEdge(this.$children[0].$uid);
+                }
+            }
         }
+        
     },
     methods: {
         edgeSuccess(comp) {
@@ -122,9 +118,4 @@ export default {
             }
         },
     },
-    // watch: {
-    //     hasEdge(newVal, oldVal) {
-    //         console.log('enter watch hasEdge', newVal);
-    //     }
-    // }
 }

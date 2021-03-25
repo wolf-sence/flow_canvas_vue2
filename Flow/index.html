@@ -191,7 +191,7 @@
                 width: 55,
                 height: 55,
                 x: 490,
-                y: 260,
+                y: 360,
             },
             output: [
                 {
@@ -268,7 +268,7 @@
             sourceConnections: [],
         }
         //  root1, root2, root3, root4, root5, root6, root7, root8, 
-        let arr = [root7, root8];
+        let arr = [root6,root7, root8];
 
         var canvas = document.getElementById('canvas');
         let context = canvas.getContext("2d");
@@ -294,7 +294,6 @@
         let flow = new FlowUnion(canvas, ratio);
         window.uae = flow.uae;
         window.flow = flow;
-        console.log('windows.uar', uae);
         flow.loopNodeList(arr);
 
         flow.uae.$on('contextmenu', e => {

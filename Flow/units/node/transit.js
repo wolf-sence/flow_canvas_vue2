@@ -1,7 +1,7 @@
 // 中转节点
 
 export default {
-    template: '<anchor v-for="(item, index) in data.output" :output="item" :index="index"></anchor>',
+    template: '<anchor v-for="(item, index) in data.output" :output="item" :index="index"  @handleEdgeSucc="handleEdgeSucc" @handleEdgeDey="handleEdgeDey"></anchor>',
     name: 'transit',
     mixin: 'normalEnd',
     data: {

@@ -30,7 +30,7 @@ export default {
         this.ctx.drawImage(img, 0, 0, 260, 200, bounds.x+bounds.width/2-this.imgWidth/2, bounds.y+2, this.imgWidth, this.imgHeight)
 
         let desp = this.data.desp;
-        let textLength = parseInt(ctx.measureText(desp).width);
+        // let textLength = parseInt(ctx.measureText(desp).width);
 
         if(data.skip&&data.skip.enabled==='1') this.mainColor = '#909399';
 

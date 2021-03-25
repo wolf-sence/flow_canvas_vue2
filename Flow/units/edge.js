@@ -1,5 +1,5 @@
 export default {
-    // template: '<dragDot></dragDot>',
+    template: '<dragDot></dragDot>',
     name: 'edge',
     block: false,
     link: false,
@@ -15,6 +15,7 @@ export default {
             x: null,
             y: null,
         },
+        backUpEnd: null,
         isHover: false,
         isSelect: false,
     },
@@ -27,6 +28,7 @@ export default {
             this.drawShape();
         }
     },
+    // 注意 canvas 原生isPointInPath无法检测fillRect、strokeRect
     isHere(x, y) {
         let ctx = this.ctx;
         this.createPath();
@@ -44,7 +46,6 @@ export default {
         this.isHover = val
     },
     click(val) {
-        console.log('click' , val);
         this.isSelect = val;
     },
     computed: {
@@ -64,14 +65,20 @@ export default {
     beforeDestroy() {
         this.handleEdgeDey2();
         this.$parent.hasEdge = false;
-        return false;
     },
     methods: {
-        handleDragStart(x, y) {
+        // isBackUp:是否备份原链接重点数据，为dragdot服务
+        handleDragStart(x, y, isBackUp=false) {
             this.start = this.$parent.bounds;
-            this.endPoints.x = x;
-            this.endPoints.y = y;
+            if(isBackUp) {
+                this.backUpEnd = this.endPoints;
+            }
+            this.endPoints = {
+                x,
+                y
+            }
         },
+        
         handleDrag(x, y) {
             let comp = this.$uae.getCompByPoint(x, y, x, y);
 
@@ -90,7 +97,6 @@ export default {
             let comp = this.$uae.getCompByPoint(x, y, x, y);
             if(!comp || !comp.$link) {
                 // 没有/不允许 附着至节点时，取消线条连接
-                // this.hasEdge = false;
                 this.endPoints = {
                     x,
                     y,
@@ -102,6 +108,24 @@ export default {
             }else {
                 this.handleEdgeSucc2(comp); // 线条接入，更新父节点数据
                 comp.dependEdge(this.$uid); // 通知目标节点记录此线条接入
+                return true;
+            }
+        },
+        handleDotDragEnd(x, y) {
+            // 来自dragDot的拖动结束事件处理
+            let comp = this.$uae.getCompByPoint(x, y, x, y);
+            if(!comp || !comp.$link) {
+                // 没有/不允许 附着至节点时，恢复之前的连接
+                this.endPoints = this.backUpEnd;
+            }else {
+                // 成功连接
+                // 销毁原数据
+                this.handleEdgeDey2();
+                // 生成新数据
+                this.handleEdgeSucc2(comp); // 线条接入，更新父节点数据
+
+                comp.dependEdge(this.$uid); // 通知目标节点记录此线条接入
+
                 return true;
             }
         },
