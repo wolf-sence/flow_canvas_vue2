@@ -9,6 +9,42 @@ import RenderSequence from '../render/sequence.js';
 
 let Grid = GridWrap.getInstance();
 
+// 分析 实现画布 高精度
+function _analysis(vm) {
+    let canvas = vm.$canvas,
+        ctx = vm.$ctx;
+    let devicePixelRatio = window.devicePixelRatio || 1;
+    let backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
+        ctx.mozBackingStorePixelRatio ||
+        ctx.msBackingStorePixelRatio ||
+        ctx.oBackingStorePixelRatio ||
+        ctx.backingStorePixelRatio || 1;
+    let ratio = devicePixelRatio / backingStoreRatio;
+
+    canvas.style.width = canvas.width+"px";
+    canvas.style.height = canvas.height+"px";
+
+    canvas.width = canvas.width * ratio;
+    canvas.height = canvas.height * ratio;
+    ctx.scale(ratio, ratio)
+    return ratio; // 返回 高精度 后缩小的比例
+}
+// 初始化 增加ctx中的绘图方法
+function _initCtx(vm) {
+    vm.ctx.roundRect = function (x, y, width, height, radius) {
+        let ctx = this;
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        radius && ctx.arcTo(x + width, y, x + width, y + radius, radius);
+        ctx.lineTo(x + width, y + height - radius);
+        radius && ctx.arcTo(x + width, y + height, x + width - radius, y + height, radius);
+        ctx.lineTo(x + radius, y + height);
+        radius && ctx.arcTo(x, y + height, x, y + height - radius, radius);
+        ctx.lineTo(x, y + radius);
+        radius && ctx.arcTo(x, y, x + radius, y, radius);
+    }
+}
+
 export default class Engine extends BaseV{
     constructor(def) {
         super(def);
@@ -125,19 +161,10 @@ export default class Engine extends BaseV{
         }
     }
     _init(def) {
+        this.ratio = _analysis(this);
         this._bind();
-        this.ctx.roundRect = function (x, y, width, height, radius) {
-            let ctx = this;
-            ctx.moveTo(x + radius, y);
-            ctx.lineTo(x + width - radius, y);
-            radius && ctx.arcTo(x + width, y, x + width, y + radius, radius);
-            ctx.lineTo(x + width, y + height - radius);
-            radius && ctx.arcTo(x + width, y + height, x + width - radius, y + height, radius);
-            ctx.lineTo(x + radius, y + height);
-            radius && ctx.arcTo(x, y + height, x, y + height - radius, radius);
-            ctx.lineTo(x, y + radius);
-            radius && ctx.arcTo(x, y, x + radius, y, radius);
-        }
+        _initCtx(this);
+        
     }
     _bind() {
         let canvas = this.$canvas;
@@ -251,7 +278,7 @@ export default class Engine extends BaseV{
                     canvas.removeEventListener('mouseup', mouseup);
                     canvas.removeEventListener('mouseleave', mouseup);
                     let x2 = this._toCanvasX(e.offsetX),
-                        y2 = this._toCanvasX(e.offsetY),
+                        y2 = this._toCanvasY(e.offsetY),
                         dx = x2 - x1,
                         dy = y2 - y1;
                     if(dragstart) {
@@ -494,6 +521,12 @@ export default class Engine extends BaseV{
         this.ctx.scale(rate, rate);
         this.repaint();
         this.sc = this.sc * rate;
+    }
+    translate(tx, ty) {
+        this.ctx.translate(tx, ty);
+        this.tx = tx;
+        this.ty = ty;
+        this.repaint();
     }
     translateX(tx) {
         this.ctx.translate(tx, 0);

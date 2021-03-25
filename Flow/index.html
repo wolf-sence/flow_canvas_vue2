@@ -271,27 +271,9 @@
         let arr = [root6,root7, root8];
 
         var canvas = document.getElementById('canvas');
-        let context = canvas.getContext("2d");
-        // canvas.width = document.body.clientWidth;
-        // canvas.height = canvas.width;
-        
-        var devicePixelRatio = window.devicePixelRatio || 1;
-        var backingStoreRatio = context.webkitBackingStorePixelRatio ||
-            context.mozBackingStorePixelRatio ||
-            context.msBackingStorePixelRatio ||
-            context.oBackingStorePixelRatio ||
-            context.backingStorePixelRatio || 1;
-        var ratio = devicePixelRatio / backingStoreRatio;
-        console.log('ratio', ratio);
 
-        canvas.style.width = canvas.width+"px";
-        canvas.style.height = canvas.height+"px";
 
-        canvas.width = canvas.width * ratio;
-        canvas.height = canvas.height * ratio;
-        context.scale(ratio, ratio)
-
-        let flow = new FlowUnion(canvas, ratio);
+        let flow = new FlowUnion(canvas);
         window.uae = flow.uae;
         window.flow = flow;
         flow.loopNodeList(arr);

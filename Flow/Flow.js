@@ -4,12 +4,11 @@ import uae from './uae.js';
 
 
 export default class FlowUnion {
-    constructor(canvas, ratio=1) {
+    constructor(canvas) {
         uae.canvas = canvas;
         
         this.uae = new Engine({
             options: uae,
-            ratio,
             autoAdsorpt: true,
         })
 
