@@ -9,7 +9,6 @@ export default class FlowUnion {
         
         this.uae = new Engine({
             options: uae,
-            autoAdsorpt: true,
         })
 
         this._init();
@@ -93,11 +92,11 @@ export default class FlowUnion {
     }
     handleDblclick(event) {
         // 双击下钻
-        let comp = event.comp;
-        if(comp && comp.$block) {
+        // let comp = event.comp;
+        // if(comp && comp.$block) {
             // this.drill.drillUae(comp);
             // comp.$dblclick();
-        }
+        // }
     }
     handleKeyDown(e) {
         if(e.keyCode === 46) {

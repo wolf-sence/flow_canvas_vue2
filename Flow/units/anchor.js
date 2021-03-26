@@ -48,6 +48,8 @@ export default {
             let end = this.$uae.flowData.getDataById(id); // 目标节点的数据data
             this.hasEdge = true;
             this.endPoints = end.bounds;
+            // bug：初始化此节点时，还没有初始化目标节点
+            // 解决：mounted事件放入异步队列
             for(let key in this.$uae._nodeMap) {
                 let node = this.$uae._nodeMap[key];
                 if(node.$block && node.data === end) {

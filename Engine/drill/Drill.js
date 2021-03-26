@@ -1,33 +1,34 @@
 export default class Drill {
+    // 下钻原则：销毁节点，保存数据，每次下钻或者上探都根据数据生成节点；
     constructor(uae) {
         this.uae = uae;
         this.stack = [];
     }
     // 下钻
-    drillUae(comp) {
+    drillUae(address) {
         let children = this.uae.$children;
-        let ret = [];
-        let data = comp.data;
+        let datas = [];
+
+        // 清除nodeMap
+        // this.clearNodeMap(children.filter(item => item.$block));
         // 清空现有画布
         for(let i=children.length-1; i>=0; i--) {
             let node = children[i];
             if(node.$block) {
-                ret.push(children.splice(i, 1)[0]);
+                // nodes.push(children.splice(i, 1)[0]);
+                datas.push(node.data);
+                node.$destroy(false);
             }
         }
         // 清空历史记录
-        this.uae.histroys.clearHistory();
+        this.uae.historys.clearHistory();
         // 清空障碍物地图
         this.uae.Grid.clearGrid();
         // 推入缓存栈
-        this.stack.push(ret)
-        // 清除nodeMap
-        this.clearNodeMap(ret);
-        // 判断子节点
-        if(!data.implementation) data.implementation = { node: [] };
-        else if(!Array.isArray(data.implementation.node)) data.implementation.node = [];
+        this.stack.push(datas)
+        
         // 根据子节点生成下钻后的画布
-        this.uae.loopNodeList(data.implementation.node);
+        this.uae.loopNodeList(address);
         this.uae.repaint();
     }
     // 还原
@@ -38,20 +39,21 @@ export default class Drill {
             for(let i=children.length-1; i>=0; i--) {
                 let node = children[i];
                 if(node.$block) {
-                    // children.splice(i, 1);
-                    node.$destroy();
+                    node.$destroy(false);
                 }
             }
             // 清空历史记录
-            this.uae.histroys.clearHistory();
+            this.uae.historys.clearHistory();
             // 插入上次保存的数据
             let list = this.stack.pop();
+            // 根据list生成还原后的画布
+            this.uae.loopNodeList(list);
             // 还原nodeMap
-            this.setNodeMap(list);
+            // this.setNodeMap(list);
             // 还原children
-            children.push(...list);
+            // children.push(...list);
             // 还原grid地图
-            this.uae.Grid.loopAllNodes(list);
+            // this.uae.Grid.loopAllNodes(list);
             this.uae.repaint();
         }
     }

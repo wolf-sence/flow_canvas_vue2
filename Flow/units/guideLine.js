@@ -45,7 +45,7 @@ export default {
         calcGuideLine(comp) {
             let selecteds = this.$uae.selecteds;
             let unselecteds = this.$uae.$children.filter(n => n.$block && n.id!==comp.id);
-            let autoAdsorpt = this.$uae.$autoAdsorpt; // 是否贴边自动吸附;
+            let autoAdsorpt = this.$uae.autoAdsorpt; // 是否贴边自动吸附;
 
             this.clearGuideLine();
             if(selecteds.length>1) return;

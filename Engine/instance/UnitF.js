@@ -37,18 +37,22 @@ function initDrag(vm) {
         }
     }
 }
-function destroy() {
+// isHook:是否调起 beforeDestroy钩子
+function destroy(isHook = true) {
     let parent = this.$parent;
     let uae = this.$uae;
     if(this.$block) Grid.handleDelete(this); // 删除障碍物地图
-    
+    console.log('销毁中', isHook);
     for(let i=0;i<this.$children.length;i++) {
-        this.$children[i].$destroy();
+        this.$children[i].$destroy(isHook);
         i--;
     }
-    // 销毁过程可逆,如果返回true，则停止此组件的销毁
-    let val = this.$beforeDestroy && this.$beforeDestroy();
-    if(val === false) return;
+    if(isHook) {
+        // 销毁过程可逆,如果返回true，则停止此组件的销毁
+        let val = this.$beforeDestroy && this.$beforeDestroy();
+        if(val === false) return;
+    }
+    
     // console.log('uae,',uae, parent);
     delete uae._nodeMap[this.$uid];
     for(let i=0;i<uae.$children.length;i++) {
@@ -72,7 +76,7 @@ function destroy() {
         try{
             if(keys[i] in this && this[keys[i]]) delete this[keys[i]];
         } catch(e) {
-            // 销毁过程，由于响应式的proxy，所以可能出现删除元数据，倒是proxy-key读不了，所以此处捕捉不做处理
+            // 销毁过程，由于响应式的proxy，所以可能出现删除元数据，导致proxy-key读不了，所以此处捕捉不做处理
         }
     }
 
@@ -174,7 +178,14 @@ class UnitF extends BaseV {
         this._init(vm);
 
         vm.$render();
-        vm.$mounted && vm.$mounted();
+        // 为了解决  在mounted事件时尝试读取整个画布数据时，画布数据仅仅渲染了一部分；
+        
+        // 异步任务总是慢于同步任务执行
+        // 所以此处的mounted事件会发生在所有同步任务完成后（即所有节点均被渲染至画布上）
+        const t = setTimeout(() => {
+            vm.$mounted && vm.$mounted();
+            clearTimeout(t);
+        }, 0)
         
     }
     _init(vm) {
@@ -182,8 +193,8 @@ class UnitF extends BaseV {
         
         initDrag(vm);
 
-        vm.$destroy = () => {
-            destroy.call(vm);
+        vm.$destroy = (...args) => {
+            destroy.apply(vm, args);
         };
 
         initChildren(vm);

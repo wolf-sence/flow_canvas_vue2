@@ -7,8 +7,8 @@ export default {
         edges: [], // 连接至此节点的edge id array
     },
     methods: {
-        dependEdge(id) {
-            this.edges.push(id);
+        dependEdge(uid) {
+            this.edges.push(uid);
         }
     },
     beforeDestroy() {

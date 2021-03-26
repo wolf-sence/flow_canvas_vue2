@@ -49,25 +49,26 @@ export default {
         ctx.stroke();
         ctx.fillStyle = '#F5F7FA';
         ctx.fill();
-        let gradient = ctx.createLinearGradient(bounds.x,bounds.y,bounds.x+bounds.width,bounds.y);
-        let colorPercent = 150*0.25/data.bounds.width;
-        gradient.addColorStop(0, this.mainColor);
-        gradient.addColorStop(colorPercent, this.mainColor);
-        gradient.addColorStop(colorPercent, '#FFF');
-        ctx.fillStyle = gradient;
+        // let gradient = ctx.createLinearGradient(bounds.x,bounds.y,bounds.x+bounds.width,bounds.y);
+        // let colorPercent = 150*0.25/bounds.width;
+        // gradient.addColorStop(0, this.mainColor);
+        // gradient.addColorStop(colorPercent, this.mainColor);
+        // gradient.addColorStop(colorPercent, '#FFF');
+        let colorWidth = bounds.width * 0.25-2;
+        ctx.beginPath();
+        ctx.roundRect(bounds.x-2, bounds.y+this.imgHeight-2, colorWidth,bounds.height-this.imgHeight+4, 5 )
+        ctx.fillStyle = this.mainColor;
         ctx.fill();
 
         ctx.font = '13px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillStyle = '#FFF';
-        ctx.fillText(data.id, bounds.x + bounds.width*colorPercent/2, bounds.y+12.5+this.imgHeight);
+        ctx.fillText(data.id, bounds.x + colorWidth/2, bounds.y+12.5+this.imgHeight);
         ctx.textAlign = 'center';
-        ctx.fillStyle = '#000'
-        ctx.fillText(desp, bounds.x+bounds.width*(0.5+colorPercent/2), bounds.y+12.5+this.imgHeight,bounds.width*(1-colorPercent));
+        ctx.fillStyle = '#000';
+        ctx.fillText(desp, bounds.x+bounds.width*0.625, bounds.y+12.5+this.imgHeight,bounds.width*0.75-2);
         this.ctx.closePath();
-        
-        
     },
     click(val) {
         this.isSelect = val;

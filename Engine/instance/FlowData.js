@@ -9,7 +9,7 @@ class FlowData {
     }
     pushDatas(nodes) {
         if(Array.isArray) {
-            this.list.push(...nodes);
+            this.list = nodes;
             for(let i=0;i<nodes.length;i++) {
                 let node = nodes[i];
                 this.map[node.id] = node;

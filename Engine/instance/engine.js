@@ -59,7 +59,7 @@ export default class Engine extends BaseV{
         this.ratio = def.ratio || 1; // 高精度比例
         this.tx = 0; // translate x/y的距离
         this.ty = 0;
-        this.$autoAdsorpt = def.autoAdsorpt || false; // 是否根据准线自动吸附
+        // this.$autoAdsorpt = def.autoAdsorpt || false; // 是否根据准线自动吸附
 
         this.$canvas = this.canvas = def.options.canvas;
         this.$ctx = this.ctx = this.$canvas.getContext('2d');
