@@ -49,11 +49,6 @@ export default {
         ctx.stroke();
         ctx.fillStyle = '#F5F7FA';
         ctx.fill();
-        // let gradient = ctx.createLinearGradient(bounds.x,bounds.y,bounds.x+bounds.width,bounds.y);
-        // let colorPercent = 150*0.25/bounds.width;
-        // gradient.addColorStop(0, this.mainColor);
-        // gradient.addColorStop(colorPercent, this.mainColor);
-        // gradient.addColorStop(colorPercent, '#FFF');
         let colorWidth = bounds.width * 0.25-2;
         ctx.beginPath();
         ctx.roundRect(bounds.x-2, bounds.y+this.imgHeight-2, colorWidth,bounds.height-this.imgHeight+4, 5 )

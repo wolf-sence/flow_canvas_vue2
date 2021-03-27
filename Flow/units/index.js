@@ -15,6 +15,7 @@ import node from './node/node.js';
 import defaultException from './node/defaultException.js';
 import risk from './node/risk.js';
 import guideLine from './guideLine.js';
+import abnormalEnd from './node/abnormalEnd.js';
 
 export default [
     root,
@@ -34,4 +35,5 @@ export default [
     defaultException,
     risk,
     guideLine,
+    abnormalEnd,
 ]

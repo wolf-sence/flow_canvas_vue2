@@ -1,3 +1,5 @@
+import Engine from '../instance/Engine.js';
+
 // 引入渲染队列机制
 export default class RenderSequence { 
     // 方案1：记录每次操作的节点，从而更新节点渲染队列
@@ -17,37 +19,57 @@ export default class RenderSequence {
     getSequence() { // 拿到渲染队列
         // 渲染优先级: children >> parent;
         //              hover > select > noStatus;
-        let noStatus = this.$children.filter(item => (!item.isHover) && (!item.isSelect))
-        let select = this.$children.filter(item => item.isSelect && (!item.isHover));
-        let hover = this.$children.filter(item => item.isHover);
+        
+        let select = this.getSelect();
+        let hover = this.getHover();
+        let noStatus = this.$children.filter(item => (select.indexOf(item)===-1) && (hover.indexOf(item)===-1))
 
         return noStatus.concat(hover, select);
-
     }
-    handleCreate(comp) {
-        this.sequence.push(comp.id);
+    getSelect() {
+        let select = []
+        let nodeMap = this._nodeMap;
+        Object.keys(nodeMap).forEach(key => {
+            if(nodeMap[key].isSelect) {
+                select.push(this._findParent(nodeMap[key]));
+            }
+        })
+        return select;
     }
-    handleDelete(comp) {
-        let index = this.sequence.indexOf(comp.id);
-        if(index !== -1) {
-            this.sequence.splice(index, 1);
-        }
+    getHover() {
+        let hover = []
+        let nodeMap = this._nodeMap;
+        Object.keys(nodeMap).forEach(key => {
+            if(nodeMap[key].isHover) {
+                hover.push(this._findParent(nodeMap[key]));
+            }
+        })
+        return hover;
     }
-    handleUpdata(comp) {
-        comp = this._findParent(comp);
-        let index = this.sequence.index(comp.id);
-        if(index !== -1) {
-            let i = this.sequence.splice(index, 1);
-            this.sequence.push(i);
-        }
-    }
+    // handleCreate(comp) {
+    //     this.sequence.push(comp.id);
+    // }
+    // handleDelete(comp) {
+    //     let index = this.sequence.indexOf(comp.id);
+    //     if(index !== -1) {
+    //         this.sequence.splice(index, 1);
+    //     }
+    // }
+    // handleUpdata(comp) {
+    //     comp = this._findParent(comp);
+    //     let index = this.sequence.index(comp.id);
+    //     if(index !== -1) {
+    //         let i = this.sequence.splice(index, 1);
+    //         this.sequence.push(i);
+    //     }
+    // }
     _findParent(comp) {
         if(comp.$parent instanceof Engine) {
             return comp;
         }else if(!comp.$parent) {
             return null;
         }else {
-            return comp.$parent;
+            return this._findParent(comp.$parent);
         }
     }
 
