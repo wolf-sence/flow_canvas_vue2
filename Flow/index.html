@@ -115,10 +115,10 @@
         }
         let root3 = {
             nodeType: 'multOutput',
-            desp: '23452345524526',
+            desp: 'multOutput',
             id: '3',
             bounds: {
-                width: 160,
+                width: 50,
                 height: 25,
                 x: 320,
                 y: 360,
@@ -203,7 +203,7 @@
             sourceConnections: [],
         }
         let root8 = {
-            nodeType: 'node',
+            nodeType: 'nodeScript',
             desp: '测试node节点',
             id: '8',
             bounds: {
@@ -232,7 +232,11 @@
             ],
             sourceConnections: [{
                 sourceTerminal: 1,
-                targetId: "7",
+                targetId: "4",
+                targetTerminal: "N",
+            },{
+                sourceTerminal: 0,
+                targetId: "2",
                 targetTerminal: "N",
             }],
         }
@@ -268,7 +272,7 @@
             sourceConnections: [],
         }
         //  root1, root2, root3, root4, root5, root6, root7, root8, 
-        let arr = [root2, root6,root7, root8];
+        let arr = [root2, root3, root6,root4, root8];
 
         var canvas = document.getElementById('canvas');
 

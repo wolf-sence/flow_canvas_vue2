@@ -3,7 +3,7 @@
 export default {
     template: `<anchor v-for="(item, index) in data.output" :output="item" :index="index" @handleEdgeSucc="handleEdgeSucc" @handleEdgeDey="handleEdgeDey"></anchor>
                 <risk v-if="data.risk"></risk>`,
-    name: 'node',
+    name: 'nodeScript',
     mixin: 'root',
     data: {
         lineWidth: 3,
@@ -44,6 +44,10 @@ export default {
 
         this.drawTrape();
         this.drawIcon();
+    },
+    created() {
+        this.data.bounds.width = 160;
+        this.data.bounds.height = 25;
     },
     computed: {
         'bounds': function() {
@@ -132,12 +136,13 @@ export default {
             let bounds = this.bounds;
             let ctx = this.ctx;
             ctx.fillStyle = this.mainColor;
-            // ctx.font = '20px iconfont';
-            ctx.font = '20px Arial';
+            ctx.font = '20px iconfont';
+            // ctx.font = '20px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            // ctx.fillText(eval(`("${icon}")`), bounds.x+leftWidth/2, bounds.y+bounds.height/2);
-            ctx.fillText('我', bounds.x+leftWidth/2, bounds.y+bounds.height/2);
+            // ctx.fillText(eval('("\\ue7ad")'), bounds.x+leftWidth/2, bounds.y+bounds.height/2);
+            ctx.fillText(eval(`("${this.icon}")`), bounds.x+leftWidth/2, bounds.y+bounds.height/2);
+            // ctx.fillText('我', bounds.x+leftWidth/2, bounds.y+bounds.height/2);
             ctx.beginPath();
             ctx.strokeStyle = '#C8D0D4';
             ctx.lineWidth = 2;

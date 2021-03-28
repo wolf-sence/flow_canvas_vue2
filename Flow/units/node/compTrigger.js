@@ -2,7 +2,7 @@
 
 export default {
     name: 'compTrigger',
-    mixin: 'node',
+    mixin: 'nodeScript',
     data: {
         mainColor: '#374E71',
         icon: '\\ue7a7',

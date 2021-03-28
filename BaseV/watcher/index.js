@@ -53,7 +53,7 @@ export default class Watcher {
             this.isFirstRender = false;
         } catch (e) {
             if(this.user) {
-                errorTip(`getter for watcher "${this.expOrFn}"`)
+                errorTip(`getter for watcher "${this.expOrFn}" wrong`)
             }else {
                 throw e;
             }

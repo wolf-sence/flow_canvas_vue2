@@ -48,6 +48,10 @@ export default {
     hover(val) {
         this.isHover = val;
     },
+    created() {
+        this.data.bounds.width = 55;
+        this.data.bounds.height = 55;
+    },
     methods: {
         drawText(origin) {
             let ctx = this.ctx;

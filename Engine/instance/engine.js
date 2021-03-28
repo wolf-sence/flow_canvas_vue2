@@ -219,8 +219,8 @@ export default class Engine extends BaseV{
             }
             this.$emit('mousemove', {
                 e,
-                x: this._toCanvasX(x),
-                y: this._toCanvasY(y),
+                x: cx,
+                y: cy,
                 comp,
             })
         })
@@ -313,15 +313,13 @@ export default class Engine extends BaseV{
             canvas.addEventListener('mouseup', mouseup);
             canvas.addEventListener('mouseleave', mouseup);
         })
-        // canvas.addEventListener('mouseup', e => {
-        //     let x1 = this._toCanvasX(e.offsetX),
-        //         y1 = this._toCanvasY(e.offsetY),
-        //         comp = this.getCompByPoint(e.offsetX, e.offsetY, x1, y1, false);
-
-        //     if(comp) {
-        //         comp.$mouseup && comp.$mouseup();
-        //     }
-        // })
+        canvas.addEventListener('mouseup', e => {
+            this.$emit('mouseup', {
+                e,
+                x: this._toCanvasX(e.offsetX),
+                y: this._toCanvasY(e.offsetY)
+            });
+        })
         canvas.addEventListener('mouseenter', e => {
             this.$emit('mouseenter', {
                 e,

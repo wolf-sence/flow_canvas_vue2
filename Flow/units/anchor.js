@@ -47,18 +47,15 @@ export default {
             let id = this.connection.targetId;
             let end = this.$uae.flowData.getDataById(id); // 目标节点的数据data
             this.hasEdge = true;
-            this.endPoints = end.bounds;
-            // bug：初始化此节点时，还没有初始化目标节点
-            // 解决：mounted事件放入异步队列
             for(let key in this.$uae._nodeMap) {
                 let node = this.$uae._nodeMap[key];
                 if(node.$block && node.data === end) {
                     this.$children[0].endPoints = node.bounds;
                     node.dependEdge(this.$children[0].$uid);
+                    break;
                 }
             }
         }
-        
     },
     methods: {
         edgeSuccess(comp) {

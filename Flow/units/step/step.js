@@ -74,6 +74,10 @@ export default {
     dblclick(event) {
         console.log('step 双击')
     },
+    created() {
+        this.data.bounds.width = 160;
+        this.data.bounds.height = 25+this.imgHeight;
+    },
     methods: {
         // 线条销毁/连接失败,数据处理
         handleEdgeDey(obj) {
@@ -128,12 +132,7 @@ export default {
     },
     computed: {
         'bounds': function() {
-            return {
-                x: this.data.bounds.x,
-                y: this.data.bounds.y,
-                width: this.data.bounds.width,
-                height: this.data.bounds.height + this.imgHeight,
-            };
+            return this.data.bounds;
         },
         
     },
