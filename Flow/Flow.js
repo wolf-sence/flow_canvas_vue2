@@ -27,6 +27,12 @@ function _initUnit(vm) {
     vm.guideLine = vm.uae.createNode({
         type: 'guideLine',
     })
+    vm.returnBtu = vm.uae.createNode({
+        type: 'return',
+    })
+    vm.dragMap = vm.uae.createNode({
+        type: 'dragMap',
+    })
 }
 
 export default class FlowUnion {
@@ -119,6 +125,7 @@ export default class FlowUnion {
     }
     handleClick(event) {
         if(event.comp) {
+            console.log('click comp', event.comp);
             this.trigger('click', event.comp);
         }
     }
@@ -126,7 +133,6 @@ export default class FlowUnion {
         let node;
         let mousemove = e => {
             if(!this.isClick) {
-                console.log('e.x, e.y', e.x, e.y)
                 node.drag && node.drag(e.x, e.y);
             }
         }

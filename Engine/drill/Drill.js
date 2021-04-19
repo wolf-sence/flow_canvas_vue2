@@ -26,7 +26,7 @@ export default class Drill {
         this.uae.Grid.clearGrid();
         // 推入缓存栈
         this.stack.push(datas)
-        
+        this.uae.isNode = true;
         // 根据子节点生成下钻后的画布
         this.uae.loopNodeList(address);
         this.uae.repaint();
@@ -56,6 +56,7 @@ export default class Drill {
             // this.uae.Grid.loopAllNodes(list);
             this.uae.repaint();
         }
+        if(this.stack.length === 0) this.uae.isNode = false;
     }
     clearNodeMap(list) {
         let nodeMap = this.uae._nodeMap;

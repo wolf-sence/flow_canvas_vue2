@@ -400,7 +400,6 @@ export default class Engine extends BaseV{
             for(let i=0,comp; i<comps.length,comp=comps[i]; i++) {
                 // 渲染过程从大到小，从外到里
                 comp.$draw && comp.$draw();
-                // _renderTemplate(comp);
                 if(comp.$children&&comp.$children.length>0) {
                     _draw(comp.$children);
                 }
@@ -410,6 +409,7 @@ export default class Engine extends BaseV{
             clearTimeout(time);
             this._drawing = false;
             let children = this.RS.getSequence(); // 拿到渲染队列
+            // let children = this.$children;
             this.ctx.clearRect(0, 0, this.$canvas.width, this.$canvas.height);
             this._renderBg(); // 渲染背景
             _draw(children);

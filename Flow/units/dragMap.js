@@ -1,34 +1,25 @@
 export default {
-    name: 'return',
+    name: 'dragMap',
     link: false,
     dragable: false,
     block: false,
+    
     data: {
-        text: '<=返回',
-        color: '#3B3B3B'
+        backColor: 'rgba(100, 100, 100, .3)'
     },
     draw() {
         let ctx = this.ctx;
+        let bounds = this.bounds;
         ctx.beginPath();
-        ctx.font = '14px Arial';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'middle';
-        if(this.$uae.isNode) {
-            // 在下探后的node界面才对 返回按钮 上色
-            ctx.fillStyle = this.color;
-        }else {
-            ctx.fillStyle = this.color;
-        }
-
-        ctx.fillText(this.text, this.bounds.x, this.bounds.y);
+        ctx.lineWidth = 2;
+        ctx.rect(bounds.x, bounds.y, bounds.width, bounds.height);
+        ctx.strokeStyle = this.backColor;
+        ctx.fillStyle = this.backColor;
+        ctx.stroke();
         ctx.fill();
     },
     hover(val) {
-        if(val) {
-            this.color = '#5F8DFA';
-        } else {
-            this.color = '#3B3B3B';
-        }
+        if(val) console.log('dragmap 被hover了！！')
     },
     isHere(x, y) {
         let ctx = this.ctx;
@@ -39,6 +30,9 @@ export default {
         }
         return false;
     },
+    drag() {
+
+    },
     computed: {
         'bounds': function() {
             let tx = this.$uae.tx,
@@ -46,8 +40,8 @@ export default {
             return {
                 x: tx+10,
                 y: ty+20,
-                width: 64,
-                height: 15,
+                width: 160,
+                height: 160,
             }
         }
     }

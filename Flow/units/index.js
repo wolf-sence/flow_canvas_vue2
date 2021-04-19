@@ -16,6 +16,8 @@ import defaultException from './node/defaultException.js';
 import risk from './node/risk.js';
 import guideLine from './guideLine.js';
 import abnormalEnd from './node/abnormalEnd.js';
+import returnBtu from './return.js';
+import dragMap from './dragMap.js';
 
 export default [
     root,
@@ -36,4 +38,6 @@ export default [
     risk,
     guideLine,
     abnormalEnd,
+    returnBtu,
+    dragMap,
 ]
