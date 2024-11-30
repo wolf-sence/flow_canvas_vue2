@@ -1,5 +1,4 @@
 import { def } from '../share/lang.js';
-import { observe } from './index.js';
 
 const arrayProto = Array.prototype;
 

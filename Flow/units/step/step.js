@@ -1,5 +1,7 @@
+import chilun from '../chilun.png';
+
 let img = new Image()
-img.src = '../Flow/units/chilun.png';
+img.src = chilun;
 
 export default {
     template: '<anchor v-for="(item, index) in data.output" :output="item" :index="index" @handleEdgeSucc="handleEdgeSucc" @handleEdgeDey="handleEdgeDey"></anchor>',

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rollup Dev</title>
+</head>
+<body>
+  <div id ="app"></div>
+        <canvas width="1200" height="500" id="canvas" class="canvas_wrapper"></canvas>
+    </div>
+  <!-- <script type="module" src="/bundle.js"></script> -->
+  <script async type="module">
+    import FlowUnion from '/bundle.js';
+    let root1 = {
+        desp: 'test1',
+        nodeType: 'step',
+        id: '1',
+        bounds: {
+            width: 160,
+            height: 25,
+            x: 120,
+            y: 120,
+        },
+        output: [
+            {
+                name: "失败",
+                paramName: "failReturn",
+                criteria: "==",
+                value: "0",
+                color: "#f12626",
+                description: "失败锚点"
+            },
+        ],
+        sourceConnections: [],
+    }
+
+    let root2 = {
+        nodeType: 'common',
+        desp: '测试节点common节点1测试节点1',
+        id: '2',
+        bounds: {
+            width: 160,
+            height: 25,
+            x: 600,
+            y: 400,
+        },
+        implementation: {
+            node: [
+                {
+                    nodeType: 'start',
+                    desp: 'start',
+                    id: '1',
+                    bounds: {
+                        width: 55,
+                        height: 55,
+                        x: 350,
+                        y: 260,
+                    },
+                    output: [
+                        {
+                            name: "成功",
+                            value: "1",
+                            color: "#21c562",
+                        },
+                    ],
+                    sourceConnections: [{
+                        sourceTerminal: 1,
+                        targetId: "6",
+                        targetTerminal: "N",
+                    }],
+                },{
+                    nodeType: 'diyEnd',
+                    desp: 'diyEnd',
+                    id: '6',
+                    bounds: {
+                        width: 55,
+                        height: 55,
+                        x: 560,
+                        y: 160,
+                    },
+                }
+            ],
+        },
+        output: [
+            {
+                name: "失败",
+                paramName: "failReturn",
+                criteria: "==",
+                value: "0",
+                color: "#f12626",
+                description: "失败锚点"
+            },
+            {
+                name: "成功",
+                paramName: "sucessReturn",
+                criteria: "==",
+                value: "1",
+                color: "#21c562",
+                description: "成功出口锚点"
+            },
+        ],
+        sourceConnections: [],
+    }
+    let root3 = {
+        nodeType: 'multOutput',
+        desp: 'multOutput',
+        id: '3',
+        bounds: {
+            width: 50,
+            height: 25,
+            x: 320,
+            y: 360,
+        },
+        output: [
+            {
+                name: "失败",
+                paramName: "failReturn",
+                criteria: "==",
+                value: "0",
+                color: "#f12626",
+                description: "失败锚点"
+            },
+            {
+                name: "成功",
+                paramName: "sucessReturn",
+                criteria: "==",
+                value: "1",
+                color: "#21c562",
+                description: "成功出口锚点"
+            },
+        ],
+        sourceConnections: [],
+    }
+    let root4 = {
+        nodeType: 'normalEnd',
+        desp: 'normalEnd',
+        id: '4',
+        bounds: {
+            width: 55,
+            height: 55,
+            x: 1140,
+            y: 430,
+        },
+    }
+    let root5 = {
+        nodeType: 'start',
+        desp: 'start',
+        id: '5',
+        bounds: {
+            width: 55,
+            height: 55,
+            x: 420,
+            y: 260,
+        },
+        output: [
+            {
+                name: "成功",
+                value: "1",
+                color: "#21c562",
+            },
+        ],
+        sourceConnections: [],
+    }
+    let root6 = {
+        nodeType: 'diyEnd',
+        desp: 'diyEnd',
+        id: '6',
+        bounds: {
+            width: 55,
+            height: 55,
+            x: 420,
+            y: 160,
+        },
+    }
+    let root7 = {
+        nodeType: 'transit',
+        id: '7',
+        bounds: {
+            width: 55,
+            height: 55,
+            x: 490,
+            y: 360,
+        },
+        output: [
+            {
+                name: "成功",
+                value: "1",
+                color: "#21c562",
+            },
+        ],
+        sourceConnections: [],
+    }
+    let root8 = {
+        nodeType: 'nodeScript',
+        desp: '测试node节点',
+        id: '8',
+        bounds: {
+            width: 160,
+            height: 25,
+            x: 590,
+            y: 240,
+        },
+        output: [
+            {
+                name: "失败",
+                paramName: "failReturn",
+                criteria: "==",
+                value: "0",
+                color: "#f12626",
+                description: "失败锚点"
+            },
+            {
+                name: "成功",
+                paramName: "sucessReturn",
+                criteria: "==",
+                value: "1",
+                color: "#21c562",
+                description: "成功出口锚点"
+            },
+        ],
+        sourceConnections: [{
+            sourceTerminal: 1,
+            targetId: "4",
+            targetTerminal: "N",
+        },{
+            sourceTerminal: 0,
+            targetId: "2",
+            targetTerminal: "N",
+        }],
+    }
+    let root9 = {
+        nodeType: 'defaultException',
+        desp: 'defaultException',
+        id: '9',
+        risk: '1',
+        bounds: {
+            width: 160,
+            height: 25,
+            x: 680,
+            y: 50,
+        },
+        output: [
+            {
+                name: "失败",
+                paramName: "failReturn",
+                criteria: "==",
+                value: "0",
+                color: "#f12626",
+                description: "失败锚点"
+            },
+            {
+                name: "成功",
+                paramName: "sucessReturn",
+                criteria: "==",
+                value: "1",
+                color: "#21c562",
+                description: "成功出口锚点"
+            },
+        ],
+        sourceConnections: [],
+    }
+    //  root1, root2, root3, root4, root5, root6, root7, root8, 
+    let arr = [root2, root3, root6,root4, root8];
+
+    var canvas = document.getElementById('canvas');
+
+
+    let flow = new FlowUnion(canvas);
+    window.uae = flow.uae;
+    window.flow = flow;
+    flow.loopNodeList(arr);
+
+    flow.uae.$on('contextmenu', e => {
+        console.log('-------右键菜单----');
+    })
+</script>
+</body>
+<style>
+    .canvas_wrapper{
+        border: 1px solid black;
+        width: 1200px;
+        height: 500px;
+    }
+</style>
+</html>

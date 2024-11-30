@@ -1,4 +1,4 @@
-import Engine from '../Engine/instance/Engine.js';
+import Engine from '../Engine/instance/engine.js';
 import units from './units/index.js';
 import uae from './uae.js';
 
