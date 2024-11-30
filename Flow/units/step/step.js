@@ -8,7 +8,7 @@ export default {
     data: {
         lineWidth: 4,
         hoverColor: '#C8D8FC',
-        selectColor: 'rgba(0, 144, 255, 0.5)',
+        selectColor: '#C8D8FC',
         mainColor: '#367AA0',
         imgWidth: 52,
         imgHeight: 40,
@@ -19,12 +19,12 @@ export default {
         let ctx = this.ctx;
         let data = this.data;
         let bounds = this.bounds;
-        if(this.isHover) {
+        if(this.isHover || this.isSelect) {
             this.drawShape(this.hoverColor);
         }
-        if(this.isSelect) {
-            this.drawShape(this.selectColor);
-        }
+        // if(this.isSelect) {
+        //     this.drawShape(this.selectColor);
+        // }
         this.ctx.beginPath();
         
         this.ctx.drawImage(img, 0, 0, 260, 200, bounds.x+bounds.width/2-this.imgWidth/2, bounds.y+2, this.imgWidth, this.imgHeight)
@@ -33,15 +33,6 @@ export default {
         // let textLength = parseInt(ctx.measureText(desp).width);
 
         if(data.skip&&data.skip.enabled==='1') this.mainColor = '#909399';
-
-        // if(textLength>200) {
-        //     desp = desp.substring(0, 200/textLength*desp.length-3)+'...';
-        //     data.bounds.width = 250;
-        // }else if (textLength>120) {
-        //     data.bounds.width = 250;
-        // }else{
-        //     data.bounds.width = 170;
-        // }
 
         ctx.strokeStyle = this.mainColor;
         ctx.lineWidth = this.lineWidth;
@@ -70,9 +61,6 @@ export default {
     },
     hover(isHover) {
         this.isHover = isHover;
-    },
-    dblclick(event) {
-        console.log('step 双击')
     },
     created() {
         this.data.bounds.width = 160;
@@ -124,7 +112,7 @@ export default {
             this.ctx.strokeStyle = color;
             this.ctx.lineWidth = 1.5;
             this.ctx.roundRect(bounds.x-4, bounds.y+15, bounds.width+8, bounds.height-8, 5);
-            this.ctx.fillStyle = 'rgba(212,223,230, .2)';
+            this.ctx.fillStyle = '#E9E9E9';
             this.ctx.stroke();
             this.ctx.fill();
             this.ctx.closePath();

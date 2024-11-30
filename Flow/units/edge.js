@@ -21,12 +21,12 @@ export default {
     },
     draw() {
         this.drawEdge();
-        if (this.isSelect) {
+        if (this.isSelect || this.isHover) {
             this.drawShape();
         }
-        if (this.isHover) {
-            this.drawShape();
-        }
+        // if (this.isHover) {
+        //     this.drawShape();
+        // }
     },
     // 注意 canvas 原生isPointInPath无法检测fillRect、strokeRect
     isHere(x, y) {
