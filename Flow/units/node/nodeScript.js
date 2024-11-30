@@ -141,7 +141,7 @@ export default {
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             // ctx.fillText(eval('("\\ue7ad")'), bounds.x+leftWidth/2, bounds.y+bounds.height/2);
-            ctx.fillText(eval(`("${this.icon}")`), bounds.x+leftWidth/2, bounds.y+bounds.height/2);
+            ctx.fillText('me', bounds.x+leftWidth/2, bounds.y+bounds.height/2);
             // ctx.fillText('我', bounds.x+leftWidth/2, bounds.y+bounds.height/2);
             ctx.beginPath();
             ctx.strokeStyle = '#C8D0D4';

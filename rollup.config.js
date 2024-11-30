@@ -5,6 +5,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import rollupDelete from 'rollup-plugin-delete';
 import rollupImage from '@rollup/plugin-image';
+import rollupTerser from '@rollup/plugin-terser';
 
 // 是否是开发模式
 const isDev = process.env.NODE_ENV === 'development';
@@ -33,6 +34,7 @@ export default {
       port: 3000,
     }),
     isDev && livereload('dist'), // 热更新
+    rollupTerser(),
   ],
   treeshake: {
     moduleSideEffects: false,

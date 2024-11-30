@@ -1,5 +1,5 @@
 import { Dep } from '../dep/index.js';
-import { defineReactive } from '../defineReactive/index.js';
+import { defineReactive } from './index.js'
 import { protoAugment } from '../share/share.js';
 import { arrayMethods } from './array.js';
 
